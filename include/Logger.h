@@ -19,7 +19,7 @@ private:
 	static Logger _instance;
 };
 
-#define LOGINGO Logger::logInfo(__FILE__, __LINE__)
+#define LOGINFO Logger::logInfo(__FILE__, __LINE__)
 #define LOGWARNING Logger::logWarning(__FILE__, __LINE__)
 #define LOGERROR Logger::logError(__FILE__, __LINE__)
 

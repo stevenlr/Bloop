@@ -9,8 +9,15 @@ public:
 	Shader(const char *vertFilename, const char *fragFilename);
 	~Shader();
 
+	void bind() const;
+	void unbind() const;
+
+	void bindAttribLocation(const GLint index, const char *name);
+	void bindFragDataLocation(const GLint index, const char *name);
+	void link();
+
 private:
-	GLuint _createShader(const char *filename, GLenum type);
+	GLuint _createShader(const char *filename, const GLenum type) const;
 
 	GLuint _program;
 };

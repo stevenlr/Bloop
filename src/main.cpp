@@ -46,20 +46,25 @@ int main(int argc, char *argv[])
 	glViewport(0, 0, 1280, 720);
 	glClearColor(0, 0, 0, 1);
 
+//	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
+//	defaultShader.bindAttribLocation(0, "in_Position");
+//	defaultShader.bindFragDataLocation(0, "out_Color");
+//	defaultShader.link();
+//	defaultShader.bind();
+
 	float vertices[] = {0, 0, 0, 1, 0, 0, 0, 1, 0};
 	GLuint vbo;
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
