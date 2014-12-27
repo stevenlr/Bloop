@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <GL/glew.h>
-
 #include "Logger.h"
 
 using namespace std;

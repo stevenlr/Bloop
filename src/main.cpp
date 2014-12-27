@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	window = glfwCreateWindow(1280, 720, "test", nullptr, nullptr);
@@ -35,6 +34,7 @@ int main(int argc, char *argv[])
 
 	glfwMakeContextCurrent(window);
 
+	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
 		glfwDestroyWindow(window);
 		glfwTerminate();
@@ -46,25 +46,28 @@ int main(int argc, char *argv[])
 	glViewport(0, 0, 1280, 720);
 	glClearColor(0, 0, 0, 1);
 
-//	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
-//	defaultShader.bindAttribLocation(0, "in_Position");
-//	defaultShader.bindFragDataLocation(0, "out_Color");
-//	defaultShader.link();
-//	defaultShader.bind();
+	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
+	defaultShader.bindAttribLocation(0, "in_Position");
+	defaultShader.bindFragDataLocation(0, "out_Color");
+	defaultShader.link();
+	defaultShader.bind();
 
-	float vertices[] = {0, 0, 0, 1, 0, 0, 0, 1, 0};
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	float vertices[] = {0, 0, 1, 0, 0, 1};
 	GLuint vbo;
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6, vertices, GL_STATIC_DRAW);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
