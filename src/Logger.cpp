@@ -13,7 +13,7 @@ Logger::Logger() :
 
 Logger::~Logger()
 {
-	if (_stream != &cout and _stream != &cerr and _stream != &clog)
+	if (_stream != &cout && _stream != &cerr && _stream != &clog)
 		delete _stream;
 }
 

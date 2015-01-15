@@ -16,7 +16,7 @@ Shader::Shader(const char *vertFilename, const char *fragFilename)
 	vert = _createShader(vertFilename, GL_VERTEX_SHADER);
 	frag = _createShader(fragFilename, GL_FRAGMENT_SHADER);
 
-	if (vert == 0 or frag == 0)
+	if (vert == 0 || frag == 0)
 		return;
 
 	glAttachShader(_program, vert);
@@ -80,7 +80,7 @@ GLuint Shader::_createShader(const char *filename, GLenum type) const
 	}
 
 	file.seekg(0, ios_base::end);
-	int size = file.tellg();
+	int size = static_cast<int>(file.tellg());
 	file.seekg(0, ios_base::beg);
 
 	GLchar *data = new GLchar[size];
