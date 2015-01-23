@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	Vector<3> vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
+	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
 	GLuint vbo;
 
 	glGenBuffers(1, &vbo);

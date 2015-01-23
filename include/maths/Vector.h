@@ -32,5 +32,10 @@ struct Vector {
 
 extern template struct Vector<2>;
 extern template struct Vector<3>;
+extern template struct Vector<4>;
+
+typedef Vector<2> Vector2;
+typedef Vector<3> Vector3;
+typedef Vector<4> Vector4;
 
 #endif
