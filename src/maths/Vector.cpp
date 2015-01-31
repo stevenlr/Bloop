@@ -1,7 +1,9 @@
 #include "maths/Vector.h"
 
-#include <cstring>
+#include <algorithm>
 #include <cmath>
+#include <numeric>
+#include <exception>
 
 using namespace std;
 
@@ -11,7 +13,7 @@ template struct Vector<3>;
 template <int S>
 Vector<S>::Vector(const Vector<S> &v)
 {
-	memcpy(data, v.data, S * sizeof(float));
+	copy_n(v.data, S, data);
 }
 
 template <int S>
@@ -20,18 +22,13 @@ Vector<S>::Vector(initializer_list<float> values)
 	if (values.size() != S)
 		return;
 
-	float *ptr = data;
-	initializer_list<float>::iterator it = values.begin();
-
-	while (it != values.end()) {
-		*ptr++ = *it++;
-	}
+	copy(values.begin(), values.end(), data);
 }
 
 template <int S>
 Vector<S> &Vector<S>::operator=(const Vector<S> &v)
 {
-	memcpy(data, v.data, S * sizeof(float));
+	copy_n(v.data, S, data);
 	return *this;
 }
 
@@ -50,9 +47,7 @@ Vector<S> Vector<S>::operator+(const Vector<S> &v) const
 {
 	Vector<S> v2;
 
-	for (int i = 0; i < S; ++i) {
-		v2.data[i] = v.data[i] + data[i];
-	}
+	transform(data, data + S, v.data, v2.data, plus<float>());
 
 	return v2;
 }
@@ -60,9 +55,7 @@ Vector<S> Vector<S>::operator+(const Vector<S> &v) const
 template <int S>
 Vector<S> &Vector<S>::operator+=(const Vector<S> &v)
 {
-	for (int i = 0; i < S; ++i) {
-		data[i] += v.data[i];
-	}
+	transform(data, data + S, v.data, data, plus<float>());
 
 	return *this;
 }
@@ -72,9 +65,7 @@ Vector<S> Vector<S>::operator-(const Vector<S> &v) const
 {
 	Vector<S> v2;
 
-	for (int i = 0; i < S; ++i) {
-		v2.data[i] = data[i] - v.data[i];
-	}
+	transform(data, data + S, v.data, v2.data, minus<float>());
 
 	return v2;
 }
@@ -82,21 +73,27 @@ Vector<S> Vector<S>::operator-(const Vector<S> &v) const
 template <int S>
 Vector<S> &Vector<S>::operator-=(const Vector<S> &v)
 {
-	for (int i = 0; i < S; ++i) {
-		data[i] -= v.data[i];
-	}
+	transform(data, data + S, v.data, data, minus<float>());
 
 	return *this;
 }
+
+template <typename T>
+class MultiplyConst {
+public:
+	MultiplyConst(T f) : _f(f) {}
+	T operator()(T f) { return f * _f; };
+
+private:
+	T _f;
+};
 
 template <int S>
 Vector<S> Vector<S>::operator*(float f) const
 {
 	Vector<S> v2;
 
-	for (int i = 0; i < S; ++i) {
-		v2.data[i] = data[i] * f;
-	}
+	transform(data, data + S, v2.data, MultiplyConst<float>(f));
 
 	return v2;
 }
@@ -104,9 +101,7 @@ Vector<S> Vector<S>::operator*(float f) const
 template <int S>
 Vector<S> &Vector<S>::operator*=(float f)
 {
-	for (int i = 0; i < S; ++i) {
-		data[i] *= f;
-	}
+	for_each(data, data + S, MultiplyConst<float>(f));
 
 	return *this;
 }
@@ -114,21 +109,13 @@ Vector<S> &Vector<S>::operator*=(float f)
 template <int S>
 Vector<S> Vector<S>::operator/(float f) const
 {
-	Vector<S> v2;
-
-	for (int i = 0; i < S; ++i) {
-		v2.data[i] = data[i] / f;
-	}
-
-	return v2;
+	return *this * (1 / f);
 }
 
 template <int S>
 Vector<S> &Vector<S>::operator/=(float f)
 {
-	for (int i = 0; i < S; ++i) {
-		data[i] /= f;
-	}
+	*this *= (1 / f);
 
 	return *this;
 }
@@ -136,25 +123,13 @@ Vector<S> &Vector<S>::operator/=(float f)
 template <int S>
 float Vector<S>::dot(const Vector<S> &v) const
 {
-	float result = 0;
-
-	for (int i = 0; i < S; ++i) {
-		result += v.data[i] * data[i];
-	}
-
-	return result;
+	return inner_product(data, data + S, v.data, 0.0f);
 }
 
 template <int S>
 float Vector<S>::length() const
 {
-	float result = 0;
-
-	for (int i = 0; i < S; ++i) {
-		result += data[i] * data[i];
-	}
-
-	return sqrt(result);
+	return sqrt(dot(*this));
 }
 
 template <>

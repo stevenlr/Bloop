@@ -2,7 +2,6 @@
 #define MATHS_VECTOR_H_
 
 #include <initializer_list>
-#include <exception>
 
 template <int S>
 struct Vector {
