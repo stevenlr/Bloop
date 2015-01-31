@@ -9,6 +9,7 @@ using namespace std;
 
 template struct Vector<2>;
 template struct Vector<3>;
+template struct Vector<4>;
 
 template <int S>
 Vector<S>::Vector(const Vector<S> &v)
@@ -19,10 +20,7 @@ Vector<S>::Vector(const Vector<S> &v)
 template <int S>
 Vector<S>::Vector(initializer_list<float> values)
 {
-	if (values.size() != S)
-		return;
-
-	copy(values.begin(), values.end(), data);
+	copy_n(values.begin(), min(static_cast<int>(values.size()), S), data);
 }
 
 template <int S>
