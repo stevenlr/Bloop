@@ -169,7 +169,7 @@ Matrix<N> &Matrix<N>::operator/=(float f)
 template <int N>
 Matrix<N> &Matrix<N>::operator*=(const Matrix<N> &m)
 {
-	return *this = *this = m;
+	return *this = *this * m;
 }
 
 template <int N>
