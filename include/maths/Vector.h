@@ -30,6 +30,9 @@ struct Vector {
 	float data[S];
 };
 
+template <>
+Vector<3> Vector<3>::cross(const Vector<3> &v) const;
+
 extern template struct Vector<2>;
 extern template struct Vector<3>;
 extern template struct Vector<4>;

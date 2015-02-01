@@ -191,3 +191,35 @@ void Matrix<N>::transpose()
 		}
 	}
 }
+
+template <int N>
+float Matrix<N>::determinant()
+{
+	float det = 0;
+	float mult = 1;
+
+	for (int i = 0; i < N; ++i) {
+		Matrix<N - 1> subMatrix;
+		float *dstptr = subMatrix._data;
+		float *srcptr = _data;
+
+		for (int j = 0; j < N; ++j, srcptr += N) {
+			if (i == j)
+				continue;
+
+			copy_n(srcptr + 1, N - 1, dstptr);
+			dstptr += N - 1;
+		}
+
+		det += mult * (*this)(i, 0) * subMatrix.determinant();
+		mult *= -1;
+	}
+
+	return det;
+}
+
+template <>
+float Matrix<2>::determinant()
+{
+	return _data[0] * _data[3] - _data[1] * _data[2];
+}

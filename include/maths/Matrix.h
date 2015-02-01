@@ -5,6 +5,8 @@
 
 template <int N>
 class Matrix {
+	friend class Matrix<N + 1>;
+
 public:
 	Matrix();
 	Matrix(const Matrix<N> &m);
@@ -28,10 +30,14 @@ public:
 
 	void identity();
 	void transpose();
+	float determinant();
 
 private:
 	float _data[N * N];
 };
+
+template <>
+float Matrix<2>::determinant();
 
 extern template class Matrix<2>;
 extern template class Matrix<3>;
