@@ -39,6 +39,9 @@ private:
 template <>
 float Matrix<2>::determinant();
 
+template <>
+float Matrix<3>::determinant();
+
 extern template class Matrix<2>;
 extern template class Matrix<3>;
 extern template class Matrix<4>;
