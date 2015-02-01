@@ -11,6 +11,7 @@ struct Vector {
 
 	Vector<S> &operator=(const Vector<S> &v);
 	float &operator[](int i);
+	float operator[](int i) const;
 
 	Vector<S> operator+(const Vector<S> &v) const;
 	Vector<S> operator-(const Vector<S> &v) const;

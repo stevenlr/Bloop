@@ -1,8 +1,11 @@
 #include "maths/Vector.h"
 
+#include "maths/MultiplyConst.h"
+
 #include <algorithm>
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
 #include <exception>
 
 using namespace std;
@@ -26,7 +29,11 @@ Vector<S>::Vector(initializer_list<float> values)
 template <int S>
 Vector<S> &Vector<S>::operator=(const Vector<S> &v)
 {
+	if (&v == this)
+		return *this;
+
 	copy_n(v.data, S, data);
+
 	return *this;
 }
 
@@ -34,7 +41,17 @@ template <int S>
 float &Vector<S>::operator[](int i)
 {
 	if (i < 0 || i >= S) {
-		throw exception("Invalid vector index.");
+		throw out_of_range("Invalid vector index.");
+	}
+
+	return data[i];
+}
+
+template <int S>
+float Vector<S>::operator[](int i) const
+{
+	if (i < 0 || i >= S) {
+		throw out_of_range("Invalid vector index.");
 	}
 
 	return data[i];
@@ -76,16 +93,6 @@ Vector<S> &Vector<S>::operator-=(const Vector<S> &v)
 	return *this;
 }
 
-template <typename T>
-class MultiplyConst {
-public:
-	MultiplyConst(T f) : _f(f) {}
-	T operator()(T f) { return f * _f; };
-
-private:
-	T _f;
-};
-
 template <int S>
 Vector<S> Vector<S>::operator*(float f) const
 {
@@ -107,13 +114,19 @@ Vector<S> &Vector<S>::operator*=(float f)
 template <int S>
 Vector<S> Vector<S>::operator/(float f) const
 {
+	if (f == 0)
+		throw domain_error("Division by 0.");
+
 	return *this * (1 / f);
 }
 
 template <int S>
 Vector<S> &Vector<S>::operator/=(float f)
 {
-	*this *= (1 / f);
+	if (f == 0)
+		throw domain_error("Division by 0.");
+
+	*this *= 1 / f;
 
 	return *this;
 }
@@ -145,6 +158,5 @@ Vector<3> Vector<3>::cross(const Vector<3> &v) const
 template <int S>
 Vector<S> Vector<S>::cross(const Vector<S> &v) const
 {
-	throw exception("Unimplemented method.");
-	return Vector<S>();
+	throw logic_error("Unimplemented method.");
 }

@@ -7,6 +7,7 @@
 #include "graphics/opengl/Shader.h"
 
 #include "maths/Vector.h"
+#include "maths/Matrix.h"
 
 using namespace std;
 
