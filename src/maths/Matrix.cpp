@@ -16,22 +16,67 @@ template class Matrix<4>;
 template <int N>
 Matrix<N>::Matrix()
 {
+	_data = new float[N * N];
 	identity();
 }
 
 template <int N>
 Matrix<N>::Matrix(const Matrix<N> &m)
 {
+	if (this == &m)
+		return;
+
+	if (_data == nullptr)
+		_data = new float[N * N];
+
 	copy_n(m._data, N * N, _data);
+}
+
+template <int N>
+Matrix<N>::Matrix(Matrix<N> &&m)
+{
+	if (this == &m)
+		return;
+
+	if (_data != nullptr)
+		delete[] _data;
+
+	_data = m._data;
+	m._data = nullptr;
+}
+
+template <int N>
+Matrix<N>::~Matrix()
+{
+	if (_data != nullptr)
+		delete[] _data;
 }
 
 template <int N>
 Matrix<N> &Matrix<N>::operator=(const Matrix<N> &m)
 {
-	if (&m == this)
+	if (this == &m)
 		return *this;
 
+	if (_data == nullptr)
+		_data = new float[N * N];
+
 	copy_n(m._data, N * N, _data);
+
+	return *this;
+}
+
+template <int N>
+Matrix<N> &Matrix<N>::operator=(Matrix<N> &&m)
+{
+	if (this == &m)
+		return *this;
+
+	if (_data != nullptr)
+		delete[] _data;
+
+	_data = m._data;
+	m._data = nullptr;
 
 	return *this;
 }

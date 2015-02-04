@@ -10,8 +10,11 @@ class Matrix {
 public:
 	Matrix();
 	Matrix(const Matrix<N> &m);
+	Matrix(Matrix<N> &&m);
+	~Matrix();
 
 	Matrix<N> &operator=(const Matrix<N> &m);
+	Matrix<N> &operator=(Matrix<N> &&m);
 	float &operator()(int i, int j);
 	float operator()(int i, int j) const;
 
@@ -34,7 +37,7 @@ public:
 	void invert();
 
 private:
-	float _data[N * N];
+	float *_data;
 };
 
 template <>
