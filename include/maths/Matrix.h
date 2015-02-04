@@ -31,6 +31,7 @@ public:
 	void identity();
 	void transpose();
 	float determinant();
+	void invert();
 
 private:
 	float _data[N * N];
@@ -41,6 +42,18 @@ float Matrix<2>::determinant();
 
 template <>
 float Matrix<3>::determinant();
+
+template <>
+float Matrix<4>::determinant();
+
+template <>
+void Matrix<2>::invert();
+
+template <>
+void Matrix<3>::invert();
+
+template <>
+void Matrix<4>::invert();
 
 extern template class Matrix<2>;
 extern template class Matrix<3>;
