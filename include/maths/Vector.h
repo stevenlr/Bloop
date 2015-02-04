@@ -4,7 +4,8 @@
 #include <initializer_list>
 
 template <int S>
-struct Vector {
+class Vector {
+public:
 	Vector() = default;
 	Vector(const Vector<S> &v);
 	Vector(std::initializer_list<float> values);
@@ -12,6 +13,7 @@ struct Vector {
 	Vector<S> &operator=(const Vector<S> &v);
 	float &operator[](int i);
 	float operator[](int i) const;
+	const float *getData() const;
 
 	Vector<S> operator+(const Vector<S> &v) const;
 	Vector<S> operator-(const Vector<S> &v) const;
@@ -27,15 +29,16 @@ struct Vector {
 	float length() const;
 	Vector<S> cross(const Vector<S> &v) const;
 
-	float data[S];
+private:
+	float _data[S];
 };
 
 template <>
 Vector<3> Vector<3>::cross(const Vector<3> &v) const;
 
-extern template struct Vector<2>;
-extern template struct Vector<3>;
-extern template struct Vector<4>;
+extern template class Vector<2>;
+extern template class Vector<3>;
+extern template class Vector<4>;
 
 typedef Vector<2> Vector2;
 typedef Vector<3> Vector3;

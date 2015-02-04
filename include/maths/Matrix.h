@@ -15,8 +15,9 @@ public:
 
 	Matrix<N> &operator=(const Matrix<N> &m);
 	Matrix<N> &operator=(Matrix<N> &&m);
-	float &operator()(int i, int j);
-	float operator()(int i, int j) const;
+	inline float &operator()(int i, int j);
+	inline float operator()(int i, int j) const;
+	inline const float *getData() const;
 
 	Matrix<N> operator+(const Matrix<N> &m) const;
 	Matrix<N> operator-(const Matrix<N> &m) const;

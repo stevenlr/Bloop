@@ -102,6 +102,12 @@ float Matrix<N>::operator()(int i, int j) const
 }
 
 template <int N>
+const float *Matrix<N>::getData() const
+{
+	return _data;
+}
+
+template <int N>
 Matrix<N> Matrix<N>::operator+(const Matrix<N> &m) const
 {
 	Matrix<N> m2;
@@ -169,7 +175,7 @@ Vector<N> Matrix<N>::operator*(const Vector<N> &v) const
 	const float *dataptr = _data;
 
 	for (int i = 0; i < N; ++i) {
-		v2[i] = inner_product(dataptr, dataptr + N, v.data, 0.0f);
+		v2[i] = inner_product(dataptr, dataptr + N, v.getData(), 0.0f);
 		dataptr += N;
 	}
 
