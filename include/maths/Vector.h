@@ -11,9 +11,9 @@ public:
 	Vector(std::initializer_list<float> values);
 
 	Vector<S> &operator=(const Vector<S> &v);
-	float &operator[](int i);
-	float operator[](int i) const;
-	const float *getData() const;
+	inline float &operator[](int i);
+	inline float operator[](int i) const;
+	inline const float *getData() const;
 
 	Vector<S> operator+(const Vector<S> &v) const;
 	Vector<S> operator-(const Vector<S> &v) const;
