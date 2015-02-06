@@ -23,6 +23,7 @@ public:
 	static Matrix4 rotation4x4(const Quaternion &q);
 
 	static Matrix4 orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far);
+	static Matrix4 perspectiveProjection4x4(float fov, float width, float height, float near, float far);
 };
 
 #endif

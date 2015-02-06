@@ -118,7 +118,7 @@ Matrix4 MatrixFactory::rotation4x4(const Quaternion &q)
 	return q.toRotationMatrix();
 }
 
-static Matrix4 orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far)
+Matrix4 MatrixFactory::orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far)
 {
 	float xs = 1 / (right - left);
 	float ys = 1 / (top - bottom);
@@ -132,6 +132,24 @@ static Matrix4 orthographicProjection4x4(float left, float right, float bottom, 
 	m(0, 3) = -(right + left) * xs;
 	m(1, 3) = -(top + bottom) * ys;
 	m(2, 3) = -(far + near) * zs;
+
+	return m;
+}
+
+#define PI 3.14159265358979323846f
+
+Matrix4 MatrixFactory::perspectiveProjection4x4(float fov, float width, float height, float near, float far)
+{
+	Matrix4 m;
+	float t = 1 / tanf(fov * PI / 360);
+
+	m(0, 0) = t;
+	m(1, 1) = t * height / width;
+	m(2, 2) = (far + near) / (near - far);
+	m(3, 3) = 0;
+
+	m(2, 3) = 2 * far * near / (near - far);
+	m(3, 2) = -1;
 
 	return m;
 }
