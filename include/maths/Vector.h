@@ -25,6 +25,7 @@ public:
 	Vector<S> &operator*=(float f);
 	Vector<S> &operator/=(float f);
 
+	void normalize();
 	float dot(const Vector<S> &v) const;
 	float length() const;
 	Vector<S> cross(const Vector<S> &v) const;

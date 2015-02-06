@@ -138,6 +138,17 @@ Vector<S> &Vector<S>::operator/=(float f)
 }
 
 template <int S>
+void Vector<S>::normalize()
+{
+	float len = length();
+
+	if (len == 0)
+		throw domain_error("Normalizing zero-length vector");
+
+	*this /= len;
+}
+
+template <int S>
 float Vector<S>::dot(const Vector<S> &v) const
 {
 	return inner_product(_data, _data + S, v._data, 0.0f);
@@ -146,7 +157,7 @@ float Vector<S>::dot(const Vector<S> &v) const
 template <int S>
 float Vector<S>::length() const
 {
-	return sqrt(dot(*this));
+	return sqrtf(dot(*this));
 }
 
 template <>

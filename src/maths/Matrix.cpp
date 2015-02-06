@@ -258,8 +258,8 @@ namespace {
 	inline float det3x3(float *_, int a, int b, int c, int d, int e, int f, int g, int h, int i)
 	{
 		return _[a] * (_[e] * _[i] - _[f] * _[h])
-			 + _[b] * (_[f] * _[g] - _[d] * _[i])
-			 + _[c] * (_[d] * _[h] - _[e] * _[g]);
+				+ _[b] * (_[f] * _[g] - _[d] * _[i])
+				+ _[c] * (_[d] * _[h] - _[e] * _[g]);
 	}
 }
 
@@ -279,9 +279,9 @@ template <>
 float Matrix<4>::determinant()
 {
 	return _data[0] * det3x3(_data, 5, 6, 7, 9, 10, 11, 13, 14, 15)
-		 - _data[1] * det3x3(_data, 4, 6, 7, 8, 10, 11, 12, 14, 15)
-		 + _data[2] * det3x3(_data, 4, 5, 7, 8, 9, 11, 12, 13, 15)
-		 - _data[3] * det3x3(_data, 4, 5, 6, 8, 9, 10, 12, 13, 14);
+			- _data[1] * det3x3(_data, 4, 6, 7, 8, 10, 11, 12, 14, 15)
+			+ _data[2] * det3x3(_data, 4, 5, 7, 8, 9, 11, 12, 13, 15)
+			- _data[3] * det3x3(_data, 4, 5, 6, 8, 9, 10, 12, 13, 14);
 }
 
 template <>
