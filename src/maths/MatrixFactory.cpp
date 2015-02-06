@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "maths/MathsConsts.h"
+
 using namespace std;
 
 Matrix4 MatrixFactory::translation4x4(const Vector3 &offset)
@@ -135,8 +137,6 @@ Matrix4 MatrixFactory::orthographicProjection4x4(float left, float right, float 
 
 	return m;
 }
-
-#define PI 3.14159265358979323846f
 
 Matrix4 MatrixFactory::perspectiveProjection4x4(float fov, float width, float height, float near, float far)
 {
