@@ -15,6 +15,16 @@ Quaternion::Quaternion(const Quaternion &q) :
 {
 }
 
+Quaternion::Quaternion(const Vector3 &v, bool point) :
+		_x(v[0]), _y(v[1]), _z(v[2]), _w((point) ? 1.f : 0.f)
+{
+}
+
+Quaternion::Quaternion(const Vector4 &v) :
+		_x(v[0]), _y(v[1]), _z(v[2]), _w(v[3])
+{
+}
+
 Quaternion::Quaternion(const Vector3 &axis, float angle)
 {
 	Vector3 u = axis;
@@ -203,6 +213,25 @@ float Quaternion::modulus() const
 float Quaternion::modulus2() const
 {
 	return _x * _x + _y * _y + _z * _z + _w * _w;
+}
+
+Matrix4 Quaternion::toRotationMatrix() const
+{
+	Matrix4 m;
+
+	m(0, 0) = 1 - 2 * (_y * _y + _z * _z);
+	m(0, 1) = 2 * (_x * _y + _z * _w);
+	m(0, 2) = 2 * (_x * _z - _y * _w);
+
+	m(1, 0) = 2 * (_x * _y - _z * _w);
+	m(1, 1) = 1 - 2 * (_x * _x + _z * _z);
+	m(1, 2) = 2 * (_y * _z + _x * _w);
+
+	m(2, 0) = 2 * (_x * _z + _y * _w);
+	m(2, 1) = 2 * (_y * _z - _x * _w);
+	m(2, 2) = 1 - 2 * (_x * _x + _y * _y);
+
+	return m;
 }
 
 Quaternion Quaternion::slerp(const Quaternion &q1, const Quaternion &q2, float t)
