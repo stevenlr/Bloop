@@ -117,3 +117,21 @@ Matrix4 MatrixFactory::rotation4x4(const Quaternion &q)
 {
 	return q.toRotationMatrix();
 }
+
+static Matrix4 orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far)
+{
+	float xs = 1 / (right - left);
+	float ys = 1 / (top - bottom);
+	float zs = 1 / (far - near);
+	Matrix4 m;
+
+	m(0, 0) = 2 * xs;
+	m(1, 1) = 2 * ys;
+	m(2, 2) = -2 * zs;
+
+	m(0, 3) = -(right + left) * xs;
+	m(1, 3) = -(top + bottom) * ys;
+	m(2, 3) = -(far + near) * zs;
+
+	return m;
+}

@@ -21,6 +21,8 @@ public:
 	static Matrix4 rotation4x4(const Vector3 &axis, float angle);
 	static Matrix4 rotation4x4(float ux, float uy, float uz, float angle);
 	static Matrix4 rotation4x4(const Quaternion &q);
+
+	static Matrix4 orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far);
 };
 
 #endif
