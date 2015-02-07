@@ -38,7 +38,7 @@ public:
 	void invert();
 
 private:
-	float *_data;
+	float *_data = nullptr;
 };
 
 template <>

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -8,6 +9,7 @@
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
+#include "maths/MatrixFactory.h"
 
 using namespace std;
 
@@ -71,7 +73,7 @@ int main(int argc, char *argv[])
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+	
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);

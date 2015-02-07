@@ -144,7 +144,7 @@ Matrix4 MatrixFactory::perspectiveProjection4x4(float fov, float width, float he
 	float t = 1 / tanf(fov * PI / 360);
 
 	m(0, 0) = t;
-	m(1, 1) = t * height / width;
+	m(1, 1) = t * width / height;
 	m(2, 2) = (far + near) / (near - far);
 	m(3, 3) = 0;
 
@@ -163,7 +163,6 @@ Matrix4 MatrixFactory::lookAt4x4(Vector3 position, Vector3 target, Vector3 up)
 	right.normalize();
 
 	Vector3 z = right.cross(view);
-
 	Matrix4 m;
 
 	m(0, 0) = right[0];
@@ -178,5 +177,5 @@ Matrix4 MatrixFactory::lookAt4x4(Vector3 position, Vector3 target, Vector3 up)
 	m(2, 1) = -view[1];
 	m(2, 2) = -view[2];
 
-	return m * translation4x4(position * -1);
+	return m * translation4x4(-position[0], -position[1], -position[2]);
 }

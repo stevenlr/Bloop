@@ -112,7 +112,7 @@ Vector<S> Vector<S>::operator*(float f) const
 template <int S>
 Vector<S> &Vector<S>::operator*=(float f)
 {
-	for_each(_data, _data + S, MultiplyConst<float>(f));
+	transform(_data, _data + S, _data, MultiplyConst<float>(f));
 
 	return *this;
 }
