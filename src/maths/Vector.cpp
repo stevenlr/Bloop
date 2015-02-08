@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numeric>
 #include <stdexcept>
 #include <exception>
 
@@ -67,8 +66,12 @@ template <int S>
 Vector<S> Vector<S>::operator+(const Vector<S> &v) const
 {
 	Vector<S> v2;
+	const float *src1 = _data, *src2 = v._data;
+	float *dst = v2._data;
 
-	transform(_data, _data + S, v._data, v2._data, plus<float>());
+	for (int i = 0; i < S; ++i) {
+		*dst++ = *src1++ + *src2++;
+	}
 
 	return v2;
 }
@@ -76,7 +79,12 @@ Vector<S> Vector<S>::operator+(const Vector<S> &v) const
 template <int S>
 Vector<S> &Vector<S>::operator+=(const Vector<S> &v)
 {
-	transform(_data, _data + S, v._data, _data, plus<float>());
+	const float *src = v._data;
+	float *dst = _data;
+
+	for (int i = 0; i < S; ++i) {
+		*dst += *src++;
+	}
 
 	return *this;
 }
@@ -85,8 +93,12 @@ template <int S>
 Vector<S> Vector<S>::operator-(const Vector<S> &v) const
 {
 	Vector<S> v2;
+	const float *src1 = _data, *src2 = v._data;
+	float *dst = v2._data;
 
-	transform(_data, _data + S, v._data, v2._data, minus<float>());
+	for (int i = 0; i < S; ++i) {
+		*dst++ = *src1++ - *src2++;
+	}
 
 	return v2;
 }
@@ -94,7 +106,12 @@ Vector<S> Vector<S>::operator-(const Vector<S> &v) const
 template <int S>
 Vector<S> &Vector<S>::operator-=(const Vector<S> &v)
 {
-	transform(_data, _data + S, v._data, _data, minus<float>());
+	const float *src = v._data;
+	float *dst = _data;
+
+	for (int i = 0; i < S; ++i) {
+		*dst++ -= *src++;
+	}
 
 	return *this;
 }
@@ -103,8 +120,12 @@ template <int S>
 Vector<S> Vector<S>::operator*(float f) const
 {
 	Vector<S> v2;
+	const float *src = _data;
+	float *dst = v2._data;
 
-	transform(_data, _data + S, v2._data, MultiplyConst<float>(f));
+	for (int i = 0; i < S; ++i) {
+		*dst++ = *src++ * f;
+	}
 
 	return v2;
 }
@@ -112,7 +133,11 @@ Vector<S> Vector<S>::operator*(float f) const
 template <int S>
 Vector<S> &Vector<S>::operator*=(float f)
 {
-	transform(_data, _data + S, _data, MultiplyConst<float>(f));
+	float *dst = _data;
+
+	for (int i = 0; i < S; ++i) {
+		*dst++ *= f;
+	}
 
 	return *this;
 }
@@ -151,7 +176,15 @@ void Vector<S>::normalize()
 template <int S>
 float Vector<S>::dot(const Vector<S> &v) const
 {
-	return inner_product(_data, _data + S, v._data, 0.0f);
+	float sum = 0;
+	const float *src = _data;
+
+	for (int i = 0; i < S; ++i) {
+		sum += *src * *src;
+		src++;
+	}
+
+	return sum;
 }
 
 template <int S>

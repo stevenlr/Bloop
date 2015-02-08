@@ -4,8 +4,6 @@
 #include <GL/glew.h>
 #include <string>
 
-#include "maths/Matrix.h"
-
 class Shader {
 public:
 	Shader(const char *vertFilename, const char *fragFilename);
