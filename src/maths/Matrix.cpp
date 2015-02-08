@@ -1,10 +1,7 @@
 #include "maths/Matrix.h"
 
-#include "maths/MultiplyConst.h"
-
 #include <algorithm>
 #include <stdexcept>
-#include <functional>
 #include <numeric>
 
 using namespace std;
@@ -111,8 +108,12 @@ template <int N>
 Matrix<N> Matrix<N>::operator+(const Matrix<N> &m) const
 {
 	Matrix<N> m2;
+	const float *src1 = _data, *src2 = m._data;
+	float *dst = m2._data;
 
-	transform(_data, _data + N, m._data, m2._data, plus<float>());
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ = *src1++ + *src2++;
+	}
 
 	return m2;
 }
@@ -121,8 +122,12 @@ template <int N>
 Matrix<N> Matrix<N>::operator-(const Matrix<N> &m) const
 {
 	Matrix<N> m2;
+	const float *src1 = _data, *src2 = m._data;
+	float *dst = m2._data;
 
-	transform(_data, _data + N, m._data, m2._data, minus<float>());
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ = *src1++ - *src2++;
+	}
 
 	return m2;
 }
@@ -131,8 +136,12 @@ template <int N>
 Matrix<N> Matrix<N>::operator*(float f) const
 {
 	Matrix<N> m2;
+	const float *src = _data;
+	float *dst = m2._data;
 
-	transform(_data, _data + N, m2._data, MultiplyConst<float>(f));
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ = *src++ * f;
+	}
 
 	return m2;
 }
@@ -185,7 +194,12 @@ Vector<N> Matrix<N>::operator*(const Vector<N> &v) const
 template <int N>
 Matrix<N> &Matrix<N>::operator+=(const Matrix<N> &m)
 {
-	transform(_data, _data + N * N, m._data, _data, plus<float>());
+	const float *src = m._data;
+	float *dst = _data;
+
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ += *src++;
+	}
 
 	return *this;
 }
@@ -193,7 +207,12 @@ Matrix<N> &Matrix<N>::operator+=(const Matrix<N> &m)
 template <int N>
 Matrix<N> &Matrix<N>::operator-=(const Matrix<N> &m)
 {
-	transform(_data, _data + N * N, m._data, _data, minus<float>());
+	const float *src = m._data;
+	float *dst = _data;
+
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ -= *src++;
+	}
 
 	return *this;
 }
@@ -201,7 +220,11 @@ Matrix<N> &Matrix<N>::operator-=(const Matrix<N> &m)
 template <int N>
 Matrix<N> &Matrix<N>::operator*=(float f)
 {
-	for_each(_data, _data + N * N, MultiplyConst<float>(f));
+	float *dst = _data;
+
+	for (int i = 0; i < N * N; ++i) {
+		*dst++ *= f;
+	}
 
 	return *this;
 }

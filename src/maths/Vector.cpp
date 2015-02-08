@@ -1,7 +1,5 @@
 #include "maths/Vector.h"
 
-#include "maths/MultiplyConst.h"
-
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
