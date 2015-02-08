@@ -181,7 +181,7 @@ float Vector<S>::dot(const Vector<S> &v) const
 
 	for (int i = 0; i < S; ++i) {
 		sum += *src * *src;
-		src++;
+		++src;
 	}
 
 	return sum;
