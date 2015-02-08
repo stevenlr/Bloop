@@ -9,13 +9,14 @@
 
 class TransformPipeline {
 public:
-	TransformPipeline() = default;
+	TransformPipeline();
+	~TransformPipeline();
 	TransformPipeline(const TransformPipeline &tp) = delete;
 	TransformPipeline &operator=(const TransformPipeline &tp) = delete;
 
 	void orthographicProjection(float left, float right, float bottom, float top, float near, float far);
 	void perspectiveProjection(float fov, float width, float height, float near, float far);
-	void lookAt(Vector3 position, Vector3 target, Vector3 up);
+	void lookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up);
 
 	void identity();
 
@@ -40,12 +41,13 @@ public:
 	const Matrix4 &getProjectionMatrix() const;
 	const Matrix4 &getViewMatrix() const;
 	const Matrix4 &getModelMatrix() const;
-	const Matrix4 &getPVMMatrix() const;
+	const Matrix4 &getPVMMatrix();
 
 private:
 	Matrix4 _projection;
 	Matrix4 _view;
-	std::stack<Matrix4> _modelStack;
+	Matrix4 *_model;
+	std::stack<Matrix4 *> _modelStack;
 	bool _isDirty = true;
 	Matrix4 _pvmCache;
 };

@@ -24,7 +24,7 @@ public:
 
 	static Matrix4 orthographicProjection4x4(float left, float right, float bottom, float top, float near, float far);
 	static Matrix4 perspectiveProjection4x4(float fov, float width, float height, float near, float far);
-	static Matrix4 lookAt4x4(Vector3 position, Vector3 target, Vector3 up);
+	static Matrix4 lookAt4x4(const Vector3 &position, const Vector3 &target, const Vector3 &up);
 };
 
 #endif

@@ -154,7 +154,7 @@ Matrix4 MatrixFactory::perspectiveProjection4x4(float fov, float width, float he
 	return m;
 }
 
-Matrix4 MatrixFactory::lookAt4x4(Vector3 position, Vector3 target, Vector3 up)
+Matrix4 MatrixFactory::lookAt4x4(const Vector3 &position, const Vector3 &target, const Vector3 &up)
 {
 	Vector3 view = target - position;
 	view.normalize();
