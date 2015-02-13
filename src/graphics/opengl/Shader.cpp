@@ -2,81 +2,53 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include "Logger.h"
 
 using namespace std;
 
-Shader::Shader(const char *vertFilename, const char *fragFilename)
+Shader::Shader(const char *filename, Type type) :
+		_type(type)
 {
-	GLuint vert, frag;
+	_id = glCreateShader(type);
 
-	_program = glCreateProgram();
+	if (_id == 0)
+		throw runtime_error("Error when creating shader.");
+	
+	loadSource(filename);
+	glCompileShader(_id);
 
-	vert = _createShader(vertFilename, GL_VERTEX_SHADER);
-	frag = _createShader(fragFilename, GL_FRAGMENT_SHADER);
+	GLint success;
+	glGetShaderiv(_id, GL_COMPILE_STATUS, &success);
 
-	if (vert == 0 || frag == 0)
-		return;
+	if (success == GL_FALSE) {
+		GLint length;
+		glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &length);
 
-	glAttachShader(_program, vert);
-	glAttachShader(_program, frag);
+		GLchar *log = new GLchar[length];
 
-	link();
+		glGetShaderInfoLog(_id, length, nullptr, log);
+		LOGERROR << "Error when compiling shader " << filename << ":" << endl << log << endl;
+		delete[] log;
+		
+		throw runtime_error("Error when compiling shader. See logs.");
+	}
 }
 
 Shader::~Shader()
 {
+	if (_id != 0)
+		glDeleteShader(_id);
 }
 
-void Shader::bind() const
+void Shader::loadSource(const char *filename)
 {
-	glUseProgram(_program);
-}
-
-void Shader::unbind() const
-{
-	glUseProgram(0);
-}
-
-void Shader::bindAttribLocation(const GLint index, const char *name)
-{
-	glBindAttribLocation(_program, index, name);
-}
-
-void Shader::bindFragDataLocation(const GLint index, const char *name)
-{
-	glBindFragDataLocation(_program, index, name);
-}
-
-void Shader::link()
-{
-	glLinkProgram(_program);
-
-	GLint success;
-	glGetProgramiv(_program, GL_LINK_STATUS, &success);
-
-	if (!success) {
-		GLint length;
-		glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &length);
-
-		GLchar *log = new GLchar[length];
-		glGetProgramInfoLog(_program, length, nullptr, log);
-		LOGERROR << "Error when linking program " << _program << endl << log << endl;
-
-		delete[] log;
-	}
-}
-
-GLuint Shader::_createShader(const char *filename, GLenum type) const
-{
-	GLuint shader = glCreateShader(type);
-
 	ifstream file(filename, ios_base::binary | ios_base::in);
 
 	if (!file.is_open()) {
 		LOGERROR << "Couldn't open shader file " << filename << endl;
-		return 0;
+		throw runtime_error("Error when opening shader file. See logs.");
 	}
 
 	file.seekg(0, ios_base::end);
@@ -87,24 +59,12 @@ GLuint Shader::_createShader(const char *filename, GLenum type) const
 	file.read(data, size);
 	file.close();
 
-	glShaderSource(shader, 1, &data, &size);
-	glCompileShader(shader);
+	glShaderSource(_id, 1, &data, &size);
+
 	delete[] data;
+}
 
-	GLint success;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-	if (!success) {
-		GLint length;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-		GLchar *log = new GLchar[length];
-		glGetShaderInfoLog(shader, length, nullptr, log);
-		LOGERROR << "Error when compiling shader " << filename << ":" << endl << log << endl;
-
-		delete[] log;
-		return 0;
-	}
-
-	return shader;
+GLuint Shader::getId()
+{
+	return _id;
 }

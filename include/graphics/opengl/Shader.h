@@ -6,20 +6,24 @@
 
 class Shader {
 public:
-	Shader(const char *vertFilename, const char *fragFilename);
+	enum Type : GLenum {
+		VertexShader = GL_VERTEX_SHADER,
+		FragmentShader = GL_FRAGMENT_SHADER
+	};
+
+	Shader(const char *filename, Type type);
 	~Shader();
 
-	void bind() const;
-	void unbind() const;
+	Shader(const Shader &shader) = delete;
+	Shader &operator=(const Shader &shader) = delete;
 
-	void bindAttribLocation(const GLint index, const char *name);
-	void bindFragDataLocation(const GLint index, const char *name);
-	void link();
+	GLuint getId();
 
 private:
-	GLuint _createShader(const char *filename, const GLenum type) const;
+	void loadSource(const char *filename);
 
-	GLuint _program;
+	GLuint _id;
+	Type _type;
 };
 
 #endif

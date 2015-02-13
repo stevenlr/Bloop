@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -13,16 +14,14 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+void run(int argc, char *argv[])
 {
 	Logger::init(&cerr);
 
 	GLFWwindow *window;
 
-	if (!glfwInit()) {
-		LOGERROR << "Couldn't initialize GLFW" << endl;
-		return 1;
-	}
+	if (!glfwInit())
+		throw runtime_error("Couldn't initialize GLFW.");
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -33,8 +32,7 @@ int main(int argc, char *argv[])
 
 	if (!window) {
 		glfwTerminate();
-		LOGERROR << "Couldn't create GLFWwindow" << endl;
-		return 1;
+		throw runtime_error("Couldn't create GLFWwindow.");
 	}
 
 	glfwMakeContextCurrent(window);
@@ -43,19 +41,20 @@ int main(int argc, char *argv[])
 	if (glewInit() != GLEW_OK) {
 		glfwDestroyWindow(window);
 		glfwTerminate();
-		LOGERROR << "Couldn't initialize GLEW" << endl;
-		return 1;
+		throw runtime_error("Couldn't initialize GLEW.");
 	}
 
 	glfwSwapInterval(1);
 	glViewport(0, 0, 1280, 720);
 	glClearColor(0, 0, 0, 1);
 
-	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
+	/*Shader defaultShader("shaders/default.vert", "shaders/default.frag");
 	defaultShader.bindAttribLocation(0, "in_Position");
 	defaultShader.bindFragDataLocation(0, "out_Color");
 	defaultShader.link();
-	defaultShader.bind();
+	defaultShader.bind();*/
+
+	Shader testShader("shaders/defaut.vert", Shader::FragmentShader);
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
@@ -86,6 +85,19 @@ int main(int argc, char *argv[])
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
+}
 
-	return 0;
+int main(int argc, char *argv[])
+{
+	try {
+		run(argc, argv);
+	} catch (const exception &e) {
+		LOGERROR << "Exception thrown : " << e.what() << endl;
+	} catch (...) {
+		LOGERROR << "Unknown exception thrown.";
+	}
+
+#ifndef NDEBUG
+	cin.get();
+#endif
 }
