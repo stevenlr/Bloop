@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Shader::Shader(const char *filename, Type type) :
+Shader::Shader(const string &filename, Type type) :
 		_type(type)
 {
 	_id = glCreateShader(type);
@@ -42,7 +42,7 @@ Shader::~Shader()
 		glDeleteShader(_id);
 }
 
-void Shader::loadSource(const char *filename)
+void Shader::loadSource(const string &filename)
 {
 	ifstream file(filename, ios_base::binary | ios_base::in);
 

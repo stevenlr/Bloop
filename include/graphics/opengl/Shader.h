@@ -11,7 +11,7 @@ public:
 		FragmentShader = GL_FRAGMENT_SHADER
 	};
 
-	Shader(const char *filename, Type type);
+	Shader(const std::string &filename, Type type);
 	~Shader();
 
 	Shader(const Shader &shader) = delete;
@@ -20,7 +20,7 @@ public:
 	GLuint getId();
 
 private:
-	void loadSource(const char *filename);
+	void loadSource(const std::string &filename);
 
 	GLuint _id;
 	Type _type;

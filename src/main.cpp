@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
-#include "graphics/opengl/Shader.h"
+#include "graphics/opengl/ShaderProgram.h"
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
@@ -48,13 +48,11 @@ void run(int argc, char *argv[])
 	glViewport(0, 0, 1280, 720);
 	glClearColor(0, 0, 0, 1);
 
-	/*Shader defaultShader("shaders/default.vert", "shaders/default.frag");
-	defaultShader.bindAttribLocation(0, "in_Position");
-	defaultShader.bindFragDataLocation(0, "out_Color");
+	ShaderProgram defaultShader("shaders/default.vert", "shaders/default.frag");
+	defaultShader.bindAttribLocation("in_Position", 0);
+	defaultShader.bindFragDataLocation("out_Color", 0);
 	defaultShader.link();
-	defaultShader.bind();*/
-
-	Shader testShader("shaders/defaut.vert", Shader::FragmentShader);
+	defaultShader.bind();
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
