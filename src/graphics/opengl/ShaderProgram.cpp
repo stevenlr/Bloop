@@ -49,6 +49,8 @@ void ShaderProgram::link()
 
 		throw runtime_error("Error when linking program. See logs.");
 	}
+
+	_uniforms.clear();
 }
 
 void ShaderProgram::bindAttribLocation(const std::string &name, GLuint location)
@@ -63,7 +65,7 @@ void ShaderProgram::bindFragDataLocation(const std::string &name, GLuint locatio
 	glBindFragDataLocation(_id, location, static_cast<const GLchar *>(name.c_str()));
 }
 
-void ShaderProgram::bind()
+void ShaderProgram::bind() const
 {
 	if (!_linked)
 		throw runtime_error("Binding an unlinked program.");
@@ -93,7 +95,24 @@ void ShaderProgram::bind()
 	glUseProgram(_id);
 }
 
-void ShaderProgram::unbind()
+void ShaderProgram::unbind() const
 {
 	glUseProgram(0);
+	return;
+}
+
+Uniform ShaderProgram::getUniform(const std::string &name)
+{
+	auto it = _uniforms.find(name);
+
+	if (it != _uniforms.end()) {
+		return it->second;
+	}
+
+	return Uniform(glGetUniformLocation(_id, name.c_str()));
+}
+
+Uniform ShaderProgram::operator[](const std::string &name)
+{
+	return getUniform(name);
 }

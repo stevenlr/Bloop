@@ -17,7 +17,7 @@ public:
 	Shader(const Shader &shader) = delete;
 	Shader &operator=(const Shader &shader) = delete;
 
-	GLuint getId();
+	GLuint getId() const;
 
 private:
 	void loadSource(const std::string &filename);

@@ -64,7 +64,7 @@ void Shader::loadSource(const string &filename)
 	delete[] data;
 }
 
-GLuint Shader::getId()
+GLuint Shader::getId() const
 {
 	return _id;
 }

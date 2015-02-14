@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 #include "graphics/opengl/ShaderProgram.h"
+#include "graphics/opengl/Uniform.h"
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
@@ -53,6 +54,9 @@ void run(int argc, char *argv[])
 	defaultShader.bindFragDataLocation("out_Color", 0);
 	defaultShader.link();
 	defaultShader.bind();
+
+	Uniform u = defaultShader["u_f"];
+	u.set1f(0.5);
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);

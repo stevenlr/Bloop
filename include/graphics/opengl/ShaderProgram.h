@@ -3,6 +3,9 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <map>
+
+#include "graphics/opengl/Uniform.h"
 
 class ShaderProgram {
 public:
@@ -17,14 +20,18 @@ public:
 	void bindAttribLocation(const std::string &name, GLuint location);
 	void bindFragDataLocation(const std::string &name, GLuint location);
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
+
+	Uniform getUniform(const std::string &name);
+	Uniform operator[](const std::string &name);
 
 private:
 	std::string _vFile;
 	std::string _fFile;
 	GLuint _id;
 	bool _linked;
+	std::map<std::string, Uniform> _uniforms;
 };
 
 #endif
