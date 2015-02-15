@@ -7,6 +7,8 @@
 
 using namespace std;
 
+GLuint ShaderProgram::_boundProgram = 0;
+
 ShaderProgram::ShaderProgram(const string &vertFilename, const string &fragFilename) :
 		_linked(false), _vFile(vertFilename), _fFile(fragFilename)
 {
@@ -92,13 +94,18 @@ void ShaderProgram::bind() const
 	}
 #endif
 
-	glUseProgram(_id);
+	if (_boundProgram != _id) {
+		glUseProgram(_id);
+		_boundProgram = _id;
+	}
 }
 
 void ShaderProgram::unbind() const
 {
-	glUseProgram(0);
-	return;
+	if (_boundProgram == _id)
+		glUseProgram(0);
+	else
+		throw runtime_error("Unbounding program from other program.");
 }
 
 Uniform ShaderProgram::getUniform(const std::string &name)
@@ -109,7 +116,7 @@ Uniform ShaderProgram::getUniform(const std::string &name)
 		return it->second;
 	}
 
-	return Uniform(glGetUniformLocation(_id, name.c_str()));
+	return Uniform(glGetUniformLocation(_id, name.c_str()), _id);
 }
 
 Uniform ShaderProgram::operator[](const std::string &name)

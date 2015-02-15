@@ -8,7 +8,7 @@
 
 class Uniform {
 public:
-	Uniform(GLint location);
+	Uniform(GLint location, GLuint program);
 	Uniform(const Uniform &u);
 
 	Uniform &operator=(const Uniform &u);
@@ -36,6 +36,7 @@ public:
 
 private:
 	GLint _location;
+	GLuint _program;
 };
 
 #endif

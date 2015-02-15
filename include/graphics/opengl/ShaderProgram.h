@@ -8,6 +8,8 @@
 #include "graphics/opengl/Uniform.h"
 
 class ShaderProgram {
+	friend Uniform;
+
 public:
 	ShaderProgram(const std::string &vertFilename, const std::string &fragFilename);
 	~ShaderProgram();
@@ -32,6 +34,8 @@ private:
 	GLuint _id;
 	bool _linked;
 	std::map<std::string, Uniform> _uniforms;
+
+	static GLuint _boundProgram;
 };
 
 #endif

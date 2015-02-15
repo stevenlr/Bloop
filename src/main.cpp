@@ -55,8 +55,7 @@ void run(int argc, char *argv[])
 	defaultShader.link();
 	defaultShader.bind();
 
-	Uniform u = defaultShader["u_f"];
-	u.set1f(0.5);
+	defaultShader["u_f"].set1f(0.5f);
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
