@@ -1,7 +1,11 @@
 #ifndef GRAPHICS_OPENGL_VERTEXARRAY_H
 #define GRAPHICS_OPENGL_VERTEXARRAY_H
 
-#include "GL/glew.h"
+#include <GL/glew.h>
+#include <vector>
+#include <cstdint>
+
+#include "graphics/opengl/VertexAttrib.h"
 
 class VertexArray {
 public:
@@ -18,7 +22,7 @@ public:
 		TrianglesAdjacency = GL_TRIANGLES_ADJACENCY
 	};
 
-	VertexArray();
+	VertexArray(DrawMode mode = Triangles, GLint offset = 0, GLint count = 0);
 	~VertexArray();
 
 	VertexArray(const VertexArray &vao) = delete;
@@ -31,16 +35,21 @@ public:
 	void setOffset(GLint offset);
 	void setCount(GLint count);
 
+	void addAttrib(const VertexAttrib &attrib);
+
 	void drawArrays() const;
 
 private:
+	void enableAttribs() const;
+
 	GLuint _id;
 	GLenum _mode;
 	GLint _offset;
 	GLsizei _count;
+	std::uint16_t _attribs;
 
 	static GLuint _boundVertexArray;
-	static bool _enabledAttribs[16];
+	static std::uint16_t _enabledAttribs;
 };
 
 #endif

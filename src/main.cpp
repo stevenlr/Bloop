@@ -9,6 +9,7 @@
 #include "graphics/opengl/ShaderProgram.h"
 #include "graphics/opengl/Uniform.h"
 #include "graphics/opengl/Buffer.h"
+#include "graphics/opengl/VertexArray.h"
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
@@ -58,30 +59,25 @@ void run(int argc, char *argv[])
 
 	defaultShader["u_f"].set1f(0.5f);
 
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	VertexArray vao(VertexArray::Triangles, 0, 3);
 
 	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
-
 	Buffer buffer(Buffer::Array, Buffer::StaticDraw);
-	buffer.bind();
 	buffer.data(sizeof(vertices), vertices);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	
+	vao.addAttrib(VertexAttrib(&buffer, 0, 3, VertexAttrib::Float));
+	vao.bind();
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 	
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		vao.drawArrays();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	glDisableVertexAttribArray(0);
-	buffer.unbind();
+	vao.unbind();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

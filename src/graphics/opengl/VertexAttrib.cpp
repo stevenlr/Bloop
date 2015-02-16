@@ -1,11 +1,18 @@
 #include "graphics/opengl/VertexAttrib.h"
 
-VertexAttrib::VertexAttrib(const Buffer &buffer, GLuint index,
+#include <stdexcept>
+
+using namespace std;
+
+VertexAttrib::VertexAttrib(Buffer *buffer, GLuint index,
 						   GLint size, Type type, bool normalized,
 						   GLsizei stride, const void *offset,
 						   GLuint divisor)
 {
-	_buffer = buffer.getId();
+	if (index >= 16)
+		throw runtime_error("Exceeding maximum vertex attribute index.");
+
+	_buffer = buffer;
 	_index = index;
 	_size = size;
 	_type = type;
@@ -43,4 +50,24 @@ VertexAttrib &VertexAttrib::operator=(const VertexAttrib &vao)
 	_divisor = vao._divisor;
 
 	return *this;
+}
+
+void VertexAttrib::apply() const
+{
+	_buffer->bind(Buffer::Array);
+
+	if (_type == Float || _type == Double)
+		glVertexAttribPointer(_index, _size, _type, _normalized, _stride, _offset);
+	else
+		glVertexAttribIPointer(_index, _size, _type, _stride, _offset);
+
+	if (_divisor != 0)
+		glVertexAttribDivisor(_index, _divisor);
+	
+	_buffer->unbind();
+}
+
+GLuint VertexAttrib::getIndex() const
+{
+	return _index;
 }

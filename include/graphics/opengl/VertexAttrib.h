@@ -18,15 +18,19 @@ public:
 		Double = GL_DOUBLE
 	};
 
-	VertexAttrib(const Buffer &buffer, GLuint index, GLint size, Type type,
-				 bool normalized, GLsizei stride, const void *offset, GLuint divisor = 0);
+	VertexAttrib(Buffer *buffer, GLuint index, GLint size, Type type,
+				 bool normalized = false, GLsizei stride = 0,
+				 const void *offset = nullptr, GLuint divisor = 0);
 	VertexAttrib(const VertexAttrib &vao);
 	~VertexAttrib();
 
 	VertexAttrib &operator=(const VertexAttrib &vao);
 
+	void apply() const;
+	GLuint getIndex() const;
+
 private:
-	GLuint _buffer;
+	Buffer *_buffer;
 	GLuint _index;
 	GLint _size;
 	Type _type;
