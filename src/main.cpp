@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "graphics/opengl/ShaderProgram.h"
 #include "graphics/opengl/Uniform.h"
+#include "graphics/opengl/Buffer.h"
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
@@ -64,9 +65,9 @@ void run(int argc, char *argv[])
 	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
 	GLuint vbo;
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	Buffer buffer(Buffer::Array, Buffer::StaticDraw);
+	buffer.bind();
+	buffer.data(sizeof(vertices), vertices);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
