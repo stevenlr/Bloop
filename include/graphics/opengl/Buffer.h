@@ -42,6 +42,8 @@ public:
 	void bind(Target target);
 	void unbind();
 
+	GLuint getId() const;
+
 private:
 	Target _target;
 	Usage _usage;

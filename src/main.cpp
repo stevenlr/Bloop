@@ -63,7 +63,6 @@ void run(int argc, char *argv[])
 	glBindVertexArray(vao);
 
 	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
-	GLuint vbo;
 
 	Buffer buffer(Buffer::Array, Buffer::StaticDraw);
 	buffer.bind();
@@ -82,8 +81,7 @@ void run(int argc, char *argv[])
 	}
 
 	glDisableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &vbo);
+	buffer.unbind();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

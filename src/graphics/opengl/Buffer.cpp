@@ -73,3 +73,8 @@ void Buffer::unbind()
 	glBindBuffer(_boundTo, 0);
 	_bound = false;
 }
+
+GLuint Buffer::getId() const
+{
+	return _id;
+}
