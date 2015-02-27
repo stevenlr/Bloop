@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "graphics/opengl/VertexAttrib.h"
+#include "graphics/opengl/ElementIndexArray.h"
 
 class VertexArray {
 public:
@@ -22,7 +23,7 @@ public:
 		TrianglesAdjacency = GL_TRIANGLES_ADJACENCY
 	};
 
-	VertexArray(DrawMode mode = Triangles, GLint offset = 0, GLint count = 0);
+	VertexArray(DrawMode mode, GLint count, GLint offset = 0);
 	~VertexArray();
 
 	VertexArray(const VertexArray &vao) = delete;
@@ -36,8 +37,10 @@ public:
 	void setCount(GLint count);
 
 	void addAttrib(const VertexAttrib &attrib);
+	void setElementIndexArray(const ElementIndexArray &eia);
 
 	void drawArrays() const;
+	void drawElements() const;
 
 private:
 	void enableAttribs() const;

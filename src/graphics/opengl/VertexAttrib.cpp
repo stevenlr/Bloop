@@ -12,6 +12,9 @@ VertexAttrib::VertexAttrib(Buffer *buffer, GLuint index,
 	if (index >= 16)
 		throw runtime_error("Exceeding maximum vertex attribute index.");
 
+	if (!buffer)
+		throw runtime_error("Assigning null buffer to vertex attrib.");
+
 	_buffer = buffer;
 	_index = index;
 	_size = size;
@@ -24,6 +27,9 @@ VertexAttrib::VertexAttrib(Buffer *buffer, GLuint index,
 
 VertexAttrib::VertexAttrib(const VertexAttrib &vao)
 {
+	if (this == &vao)
+		return;
+
 	_buffer = vao._buffer;
 	_index = vao._index;
 	_size = vao._size;

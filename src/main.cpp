@@ -10,6 +10,7 @@
 #include "graphics/opengl/Uniform.h"
 #include "graphics/opengl/Buffer.h"
 #include "graphics/opengl/VertexArray.h"
+#include "graphics/opengl/ElementIndexArray.h"
 
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
@@ -59,19 +60,26 @@ void run(int argc, char *argv[])
 
 	defaultShader["u_f"].set1f(0.5f);
 
-	VertexArray vao(VertexArray::Triangles, 0, 3);
+	VertexArray vao(VertexArray::Triangles, 6);
 
-	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}};
-	Buffer buffer(Buffer::Array, Buffer::StaticDraw);
-	buffer.data(sizeof(vertices), vertices);
+	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
+	unsigned int indices[] = {0, 1, 2, 2, 1, 3};
+
+	Buffer bufferPos(Buffer::Array, Buffer::StaticDraw);
+	bufferPos.data(sizeof(vertices), vertices);
+
+	Buffer bufferIndex(Buffer::ElementArray, Buffer::StaticDraw);
+	bufferIndex.data(sizeof(indices), indices);
 	
-	vao.addAttrib(VertexAttrib(&buffer, 0, 3, VertexAttrib::Float));
+	vao.addAttrib(VertexAttrib(&bufferPos, 0, 3, VertexAttrib::Float));
+	vao.setElementIndexArray(ElementIndexArray(&bufferIndex));
+
 	vao.bind();
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 	
-		vao.drawArrays();
+		vao.drawElements();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

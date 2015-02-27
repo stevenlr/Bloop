@@ -16,7 +16,7 @@ namespace {
 	};
 };
 
-VertexArray::VertexArray(DrawMode mode, GLint offset, GLint count) :
+VertexArray::VertexArray(DrawMode mode, GLint count, GLint offset) :
 		_mode(mode), _offset(offset), _count(count), _attribs(0)
 {
 	glGenVertexArrays(1, &_id);
@@ -74,6 +74,14 @@ void VertexArray::drawArrays() const
 	glDrawArrays(_mode, _offset, _count);
 }
 
+void VertexArray::drawElements() const
+{
+	if (_boundVertexArray != _id)
+		throw runtime_error("Drawing unbound vertex array.");
+
+	glDrawElements(_mode, _count, GL_UNSIGNED_INT, nullptr);
+}
+
 void VertexArray::addAttrib(const VertexAttrib &attrib)
 {
 	if (_boundVertexArray != _id)
@@ -88,6 +96,17 @@ void VertexArray::addAttrib(const VertexAttrib &attrib)
 		glEnableVertexAttribArray(attrib.getIndex());
 		_enabledAttribs |= attribMasks[attrib.getIndex()];
 	}
+}
+
+void VertexArray::setElementIndexArray(const ElementIndexArray &eia)
+{
+	if (_boundVertexArray != _id)
+		glBindVertexArray(_id);
+
+	eia.bind();
+
+	if (_boundVertexArray != _id)
+		glBindVertexArray(_boundVertexArray);
 }
 
 void VertexArray::enableAttribs() const
