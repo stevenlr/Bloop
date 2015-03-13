@@ -5,19 +5,9 @@
 using namespace std;
 
 GLuint VertexArray::_boundVertexArray = 0;
-uint16_t VertexArray::_enabledAttribs = 0;
-
-namespace {
-	uint16_t attribMasks[] = {
-		0x0001, 0x0002, 0x0004, 0x0008,
-		0x0010, 0x0020, 0x0040, 0x0080,
-		0x0100, 0x0200, 0x0400, 0x0800,
-		0x1000, 0x2000, 0x4000, 0x8000
-	};
-};
 
 VertexArray::VertexArray(DrawMode mode, GLint count, GLint offset) :
-		_mode(mode), _offset(offset), _count(count), _attribs(0)
+		_mode(mode), _offset(offset), _count(count)
 {
 	glGenVertexArrays(1, &_id);
 
@@ -36,8 +26,6 @@ void VertexArray::bind() const
 	if (_boundVertexArray != _id) {
 		glBindVertexArray(_id);
 		_boundVertexArray = _id;
-
-		enableAttribs();
 	}
 }
 
@@ -82,20 +70,19 @@ void VertexArray::drawElements() const
 	glDrawElements(_mode, _count, GL_UNSIGNED_INT, nullptr);
 }
 
-void VertexArray::addAttrib(const VertexAttrib &attrib)
+void VertexArray::addAttrib(GLuint index, const VertexAttrib &attrib)
 {
+	if (index >= 16)
+		throw runtime_error("Exceeding maximum vertex attribute index.");
+
 	if (_boundVertexArray != _id)
 		glBindVertexArray(_id);
 
-	attrib.apply();
-	_attribs |= attribMasks[attrib.getIndex()];
+	glEnableVertexAttribArray(index);
+	attrib.apply(index);
 
-	if (_boundVertexArray != _id) {
+	if (_boundVertexArray != _id)
 		glBindVertexArray(_boundVertexArray);
-	} else {
-		glEnableVertexAttribArray(attrib.getIndex());
-		_enabledAttribs |= attribMasks[attrib.getIndex()];
-	}
 }
 
 void VertexArray::setElementIndexArray(const ElementIndexArray &eia)
@@ -107,23 +94,4 @@ void VertexArray::setElementIndexArray(const ElementIndexArray &eia)
 
 	if (_boundVertexArray != _id)
 		glBindVertexArray(_boundVertexArray);
-}
-
-void VertexArray::enableAttribs() const
-{
-	uint16_t toDisable = (~_attribs) & _enabledAttribs;
-	uint16_t toEnable = _attribs & (~_enabledAttribs);
-	uint16_t mask = 1;
-
-	for (int i = 0; i < 16; ++i) {
-		if (toDisable & mask)
-			glDisableVertexAttribArray(i);
-
-		if (toEnable & mask)
-			glEnableVertexAttribArray(i);
-
-		mask <<= 1;
-	}
-
-	_enabledAttribs = _attribs;
 }

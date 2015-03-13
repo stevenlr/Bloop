@@ -4,19 +4,15 @@
 
 using namespace std;
 
-VertexAttrib::VertexAttrib(Buffer *buffer, GLuint index,
+VertexAttrib::VertexAttrib(Buffer *buffer,
 						   GLint size, Type type, bool normalized,
 						   GLsizei stride, const void *offset,
 						   GLuint divisor)
 {
-	if (index >= 16)
-		throw runtime_error("Exceeding maximum vertex attribute index.");
-
 	if (!buffer)
 		throw runtime_error("Assigning null buffer to vertex attrib.");
 
 	_buffer = buffer;
-	_index = index;
 	_size = size;
 	_type = type;
 	_normalized = normalized;
@@ -31,7 +27,6 @@ VertexAttrib::VertexAttrib(const VertexAttrib &vao)
 		return;
 
 	_buffer = vao._buffer;
-	_index = vao._index;
 	_size = vao._size;
 	_type = vao._type;
 	_normalized = vao._normalized;
@@ -47,7 +42,6 @@ VertexAttrib::~VertexAttrib()
 VertexAttrib &VertexAttrib::operator=(const VertexAttrib &vao)
 {
 	_buffer = vao._buffer;
-	_index = vao._index;
 	_size = vao._size;
 	_type = vao._type;
 	_normalized = vao._normalized;
@@ -58,22 +52,18 @@ VertexAttrib &VertexAttrib::operator=(const VertexAttrib &vao)
 	return *this;
 }
 
-void VertexAttrib::apply() const
+void VertexAttrib::apply(GLuint index) const
 {
 	_buffer->bind(Buffer::Array);
 
 	if (_type == Float || _type == Double)
-		glVertexAttribPointer(_index, _size, _type, _normalized, _stride, _offset);
+		glVertexAttribPointer(index, _size, _type, _normalized, _stride, _offset);
 	else
-		glVertexAttribIPointer(_index, _size, _type, _stride, _offset);
+		glVertexAttribIPointer(index, _size, _type, _stride, _offset);
 
 	if (_divisor != 0)
-		glVertexAttribDivisor(_index, _divisor);
+		glVertexAttribDivisor(index, _divisor);
 	
 	_buffer->unbind();
 }
 
-GLuint VertexAttrib::getIndex() const
-{
-	return _index;
-}

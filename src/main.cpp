@@ -71,7 +71,7 @@ void run(int argc, char *argv[])
 	Buffer bufferIndex(Buffer::ElementArray, Buffer::StaticDraw);
 	bufferIndex.data(sizeof(indices), indices);
 	
-	vao.addAttrib(VertexAttrib(&bufferPos, 0, 3, VertexAttrib::Float));
+	vao.addAttrib(0, VertexAttrib(&bufferPos, 3, VertexAttrib::Float));
 	vao.setElementIndexArray(ElementIndexArray(&bufferIndex));
 
 	vao.bind();

@@ -36,23 +36,19 @@ public:
 	void setOffset(GLint offset);
 	void setCount(GLint count);
 
-	void addAttrib(const VertexAttrib &attrib);
+	void addAttrib(GLuint index, const VertexAttrib &attrib);
 	void setElementIndexArray(const ElementIndexArray &eia);
 
 	void drawArrays() const;
 	void drawElements() const;
 
 private:
-	void enableAttribs() const;
-
 	GLuint _id;
 	GLenum _mode;
 	GLint _offset;
 	GLsizei _count;
-	std::uint16_t _attribs;
 
 	static GLuint _boundVertexArray;
-	static std::uint16_t _enabledAttribs;
 };
 
 #endif
