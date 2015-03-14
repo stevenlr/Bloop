@@ -4,7 +4,8 @@
 
 using namespace std;
 
-ElementIndexArray::ElementIndexArray(Buffer *buffer)
+ElementIndexArray::ElementIndexArray(Buffer *buffer, ElementIndexArray::Type type) :
+		_type(type)
 {
 	if (!buffer)
 		throw runtime_error("Assigning null buffer to element index array.");
@@ -32,4 +33,9 @@ void ElementIndexArray::bind() const
 void ElementIndexArray::unbind() const
 {
 	_buffer->unbind();
+}
+
+ElementIndexArray::Type ElementIndexArray::getType() const
+{
+	return _type;
 }

@@ -7,7 +7,7 @@ using namespace std;
 GLuint VertexArray::_boundVertexArray = 0;
 
 VertexArray::VertexArray(DrawMode mode, GLint count, GLint offset) :
-		_mode(mode), _offset(offset), _count(count)
+		_mode(mode), _offset(offset), _count(count), _useEia(false)
 {
 	glGenVertexArrays(1, &_id);
 
@@ -67,7 +67,10 @@ void VertexArray::drawElements() const
 	if (_boundVertexArray != _id)
 		throw runtime_error("Drawing unbound vertex array.");
 
-	glDrawElements(_mode, _count, GL_UNSIGNED_INT, nullptr);
+	if (!_useEia)
+		throw runtime_error("Called drawElement on vertex array without element index array bound.");
+
+	glDrawElements(_mode, _count, _eiaType, nullptr);
 }
 
 void VertexArray::addAttrib(GLuint index, const VertexAttrib &attrib)
@@ -91,6 +94,8 @@ void VertexArray::setElementIndexArray(const ElementIndexArray &eia)
 		glBindVertexArray(_id);
 
 	eia.bind();
+	_useEia = true;
+	_eiaType = eia.getType();
 
 	if (_boundVertexArray != _id)
 		glBindVertexArray(_boundVertexArray);

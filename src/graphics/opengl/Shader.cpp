@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Shader::Shader(const string &filename, Type type) :
+Shader::Shader(const string &filename, Shader::Type type) :
 		_type(type)
 {
 	_id = glCreateShader(type);

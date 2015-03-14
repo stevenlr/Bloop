@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Buffer::Buffer(Target target, Usage usage) :
+Buffer::Buffer(Buffer::Target target, Buffer::Usage usage) :
 		_target(target), _usage(usage), _bound(false), _boundTo(target)
 {
 	glGenBuffers(1, &_id);

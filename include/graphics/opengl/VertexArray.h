@@ -47,6 +47,8 @@ private:
 	GLenum _mode;
 	GLint _offset;
 	GLsizei _count;
+	bool _useEia;
+	ElementIndexArray::Type _eiaType;
 
 	static GLuint _boundVertexArray;
 };

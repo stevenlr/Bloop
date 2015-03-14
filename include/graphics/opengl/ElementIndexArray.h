@@ -7,15 +7,23 @@
 
 class ElementIndexArray {
 public:
-	ElementIndexArray(Buffer *buffer);
+	enum Type : GLenum {
+		UnsignedInt = GL_UNSIGNED_INT,
+		UnsignedShort = GL_UNSIGNED_SHORT,
+		UnsignedByte = GL_UNSIGNED_BYTE
+	};
+
+	ElementIndexArray(Buffer *buffer, Type type = UnsignedInt);
 	ElementIndexArray(const ElementIndexArray &eai);
 	~ElementIndexArray();
 
 	void bind() const;
 	void unbind() const;
+	Type getType() const;
 
 private:
 	Buffer *_buffer;
+	Type _type;
 };
 
 #endif

@@ -63,7 +63,7 @@ void run(int argc, char *argv[])
 	VertexArray vao(VertexArray::Triangles, 6);
 
 	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
-	unsigned int indices[] = {0, 1, 2, 2, 1, 3};
+	GLubyte indices[] = {0, 1, 2, 2, 1, 3};
 
 	Buffer bufferPos(Buffer::Array, Buffer::StaticDraw);
 	bufferPos.data(sizeof(vertices), vertices);
@@ -72,7 +72,7 @@ void run(int argc, char *argv[])
 	bufferIndex.data(sizeof(indices), indices);
 	
 	vao.addAttrib(0, VertexAttrib(&bufferPos, 3, VertexAttrib::Float));
-	vao.setElementIndexArray(ElementIndexArray(&bufferIndex));
+	vao.setElementIndexArray(ElementIndexArray(&bufferIndex, ElementIndexArray::UnsignedByte));
 
 	vao.bind();
 
