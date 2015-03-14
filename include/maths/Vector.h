@@ -1,5 +1,5 @@
-#ifndef MATHS_VECTOR_H_
-#define MATHS_VECTOR_H_
+#ifndef MATHS_VECTOR_H
+#define MATHS_VECTOR_H
 
 #include <initializer_list>
 

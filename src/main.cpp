@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
+#include "InputHandler.h"
+
 #include "graphics/opengl/ShaderProgram.h"
 #include "graphics/opengl/Uniform.h"
 #include "graphics/opengl/Buffer.h"
@@ -38,6 +40,9 @@ void run(int argc, char *argv[])
 		glfwTerminate();
 		throw runtime_error("Couldn't create GLFWwindow.");
 	}
+
+	InputHandler *input = InputHandler::getInstance();
+	glfwSetKeyCallback(window, InputHandler::keyCallback);
 
 	glfwMakeContextCurrent(window);
 
@@ -76,13 +81,19 @@ void run(int argc, char *argv[])
 
 	vao.bind();
 
-	while (!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT);
-	
-		vao.drawElements();
+	bool running = true;
 
+	while (running) {
+		input->poll();
+
+		if (glfwWindowShouldClose(window) || input->keyWasPressed(InputHandler::Quit))
+			running = false;
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		vao.drawElements();
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+
+		input->update();
 	}
 
 	vao.unbind();
@@ -97,11 +108,15 @@ int main(int argc, char *argv[])
 		run(argc, argv);
 	} catch (const exception &e) {
 		LOGERROR << "Exception thrown : " << e.what() << endl;
-	} catch (...) {
-		LOGERROR << "Unknown exception thrown.";
-	}
 
 #ifndef NDEBUG
-	cin.get();
+		cin.get();
 #endif
+	} catch (...) {
+		LOGERROR << "Unknown exception thrown.";
+
+#ifndef NDEBUG
+		cin.get();
+#endif
+	}
 }

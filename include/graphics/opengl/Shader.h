@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_OPENGL_SHADER_H_
-#define GRAPHICS_OPENGL_SHADER_H_
+#ifndef GRAPHICS_OPENGL_SHADER_H
+#define GRAPHICS_OPENGL_SHADER_H
 
 #include <GL/glew.h>
 #include <string>
