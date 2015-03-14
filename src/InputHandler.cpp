@@ -27,11 +27,21 @@ InputHandler::InputHandler()
 	for (int i = 0; i < KEY_NB_ITEMS; ++i) {
 		_invertConfig.insert(make_pair(_config[i], static_cast<Key>(i)));
 	}
+
+	_lastMouseX = 0;
+	_lastMouseY = 0;
+	_mouseX = 0;
+	_mouseY = 0;
 }
 
 void InputHandler::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	_instance.keyCallback(key, scancode, action, mods);
+}
+
+void InputHandler::mousePositionCallback(GLFWwindow* window, double x, double y)
+{
+	_instance.mousePositionCallback(x, y);
 }
 
 void InputHandler::keyCallback(int key, int scancode, int action, int mods)
@@ -55,6 +65,12 @@ void InputHandler::keyCallback(int key, int scancode, int action, int mods)
 	}
 }
 
+void InputHandler::mousePositionCallback(float x, float y)
+{
+	_mouseX = x;
+	_mouseY = y;
+}
+
 void InputHandler::poll()
 {
 	glfwPollEvents();
@@ -65,6 +81,9 @@ void InputHandler::update()
 	for (int i = 0; i < KEY_NB_ITEMS; ++i) {
 		_keys[i].update();
 	}
+
+	_lastMouseX = _mouseX;
+	_lastMouseY = _mouseY;
 }
 
 bool InputHandler::keyWasPressed(Key key)
@@ -89,6 +108,18 @@ bool InputHandler::keyIsDown(Key key)
 		throw runtime_error("Key symbol out of range.");
 
 	return _keys[key].isDown();
+}
+
+void InputHandler::mouseMotion(float &dx, float &dy)
+{
+	dx = _mouseX - _lastMouseX;
+	dy = _mouseY - _lastMouseY;
+}
+
+void InputHandler::mousePosition(float &x, float &y)
+{
+	x = _mouseX;
+	y = _mouseY;
 }
 
 InputHandler::KeyState::KeyState()

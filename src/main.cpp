@@ -42,7 +42,10 @@ void run(int argc, char *argv[])
 	}
 
 	InputHandler *input = InputHandler::getInstance();
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetKeyCallback(window, InputHandler::keyCallback);
+	glfwSetCursorPosCallback(window, InputHandler::mousePositionCallback);
 
 	glfwMakeContextCurrent(window);
 
@@ -82,12 +85,22 @@ void run(int argc, char *argv[])
 	vao.bind();
 
 	bool running = true;
+	float mouseX = 0, mouseY = 0;
 
 	while (running) {
 		input->poll();
 
 		if (glfwWindowShouldClose(window) || input->keyWasPressed(InputHandler::Quit))
 			running = false;
+
+		float dx, dy;
+		input->mouseMotion(dx, dy);
+		mouseX += dx;
+		mouseY += dy;
+
+		defaultShader["u_f"].set1f(mouseX / 10000.0f);
+
+		cout << mouseX << endl;
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		vao.drawElements();
