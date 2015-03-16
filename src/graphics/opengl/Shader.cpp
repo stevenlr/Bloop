@@ -59,7 +59,7 @@ void Shader::loadSource(const string &filename)
 	file.read(data, size);
 	file.close();
 
-	glShaderSource(_id, 1, &data, &size);
+	glShaderSource(_id, 1, (const char**) &data, &size);
 
 	delete[] data;
 }
