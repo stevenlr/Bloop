@@ -16,16 +16,23 @@ InputHandler *InputHandler::getInstance()
 
 InputHandler::InputHandler()
 {
-	_config[Forward] = GLFW_KEY_Z;
-	_config[Backward] = GLFW_KEY_S;
-	_config[Left] = GLFW_KEY_Q;
-	_config[Right] = GLFW_KEY_D;
-	_config[Up] = GLFW_KEY_SPACE;
-	_config[Down] = GLFW_KEY_LEFT_SHIFT;
-	_config[Quit] = GLFW_KEY_ESCAPE;
+	_configKey[Forward] = GLFW_KEY_Z;
+	_configKey[Backward] = GLFW_KEY_S;
+	_configKey[Left] = GLFW_KEY_Q;
+	_configKey[Right] = GLFW_KEY_D;
+	_configKey[Up] = GLFW_KEY_SPACE;
+	_configKey[Down] = GLFW_KEY_LEFT_SHIFT;
+	_configKey[Quit] = GLFW_KEY_ESCAPE;
+
+	_configMouseButton[Attack] = GLFW_MOUSE_BUTTON_LEFT;
+	_configMouseButton[Interact] = GLFW_MOUSE_BUTTON_RIGHT;
 
 	for (int i = 0; i < KEY_NB_ITEMS; ++i) {
-		_invertConfig.insert(make_pair(_config[i], static_cast<Key>(i)));
+		_invertConfigKey.insert(make_pair(_configKey[i], static_cast<Key>(i)));
+	}
+
+	for (int i = 0; i < MOUSE_BUTTON_NB_ITEMS; ++i) {
+		_invertConfigMouseButton.insert(make_pair(_configMouseButton[i], static_cast<MouseButton>(i)));
 	}
 
 	_lastMouseX = 0;
@@ -44,14 +51,19 @@ void InputHandler::mousePositionCallback(GLFWwindow* window, double x, double y)
 	_instance.mousePositionCallback(x, y);
 }
 
+void InputHandler::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	_instance.mouseButtonCallback(button, action, mods);
+}
+
 void InputHandler::keyCallback(int key, int scancode, int action, int mods)
 {
 	if (action != GLFW_PRESS && action != GLFW_RELEASE)
 		return;
 
-	map<int, Key>::iterator it = _invertConfig.find(key);
+	map<int, Key>::iterator it = _invertConfigKey.find(key);
 
-	if (it != _invertConfig.end()) {
+	if (it != _invertConfigKey.end()) {
 		Key key = it->second;
 
 		switch (action) {
@@ -71,8 +83,30 @@ void InputHandler::mousePositionCallback(float x, float y)
 	_mouseY = y;
 }
 
+void InputHandler::mouseButtonCallback(int button, int action, int mods)
+{
+	if (action != GLFW_PRESS && action != GLFW_RELEASE)
+		return;
+
+	map<int, MouseButton>::iterator it = _invertConfigMouseButton.find(button);
+
+	if (it != _invertConfigMouseButton.end()) {
+		MouseButton button = it->second;
+
+		switch (action) {
+			case GLFW_PRESS:
+				_mouseButtons[button].press();
+				break;
+			case GLFW_RELEASE:
+				_mouseButtons[button].release();
+				break;
+		}
+	}
+}
+
 void InputHandler::poll()
 {
+	update();
 	glfwPollEvents();
 }
 
@@ -122,42 +156,66 @@ void InputHandler::mousePosition(float &x, float &y)
 	y = _mouseY;
 }
 
-InputHandler::KeyState::KeyState()
+bool InputHandler::mouseButtonWasPressed(MouseButton button)
+{
+	if (button < 0 || button >= MOUSE_BUTTON_NB_ITEMS)
+		throw runtime_error("Mouse button symbol out of range.");
+
+	return _mouseButtons[button].wasPressed();
+}
+
+bool InputHandler::mouseButtonWasReleased(MouseButton button)
+{
+	if (button < 0 || button >= MOUSE_BUTTON_NB_ITEMS)
+		throw runtime_error("Mouse button symbol out of range.");
+
+	return _mouseButtons[button].wasReleased();
+}
+
+bool InputHandler::mouseButtonIsDown(MouseButton button)
+{
+	if (button < 0 || button >= MOUSE_BUTTON_NB_ITEMS)
+		throw runtime_error("Mouse button symbol out of range.");
+
+	return _mouseButtons[button].isDown();
+}
+
+InputHandler::ButtonState::ButtonState()
 {
 	_currentState = false;
 	_pressedCurrentTick = false;
 	_releasedCurrentTick = false;
 }
 
-void InputHandler::KeyState::press()
+void InputHandler::ButtonState::press()
 {
 	_pressedCurrentTick = true;
 	_currentState = true;
 }
 
-void InputHandler::KeyState::release()
+void InputHandler::ButtonState::release()
 {
 	_currentState = false;
 	_releasedCurrentTick = true;
 }
 
-void InputHandler::KeyState::update()
+void InputHandler::ButtonState::update()
 {
 	_pressedCurrentTick = false;
 	_releasedCurrentTick = false;
 }
 
-bool InputHandler::KeyState::wasPressed()
+bool InputHandler::ButtonState::wasPressed()
 {
 	return _pressedCurrentTick;
 }
 
-bool InputHandler::KeyState::wasReleased()
+bool InputHandler::ButtonState::wasReleased()
 {
 	return _releasedCurrentTick;
 }
 
-bool InputHandler::KeyState::isDown()
+bool InputHandler::ButtonState::isDown()
 {
 	return _currentState;
 }

@@ -19,17 +19,29 @@ public:
 		KEY_NB_ITEMS
 	};
 
+	enum MouseButton : int {
+		Attack,
+		Interact,
+
+		MOUSE_BUTTON_NB_ITEMS
+	};
+
 	static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-	static void mousePositionCallback(GLFWwindow* window, double dx, double dy);
+	static void mousePositionCallback(GLFWwindow* window, double x, double y);
+	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
 	void keyCallback(int key, int scancode, int action, int mods);
-	void mousePositionCallback(float dx, float dy);
+	void mousePositionCallback(float x, float y);
+	void mouseButtonCallback(int button, int action, int mods);
 
 	bool keyWasPressed(Key key);
 	bool keyWasReleased(Key key);
 	bool keyIsDown(Key key);
 	void mouseMotion(float &dx, float &dy);
 	void mousePosition(float &x, float &y);
+	bool mouseButtonWasPressed(MouseButton button);
+	bool mouseButtonWasReleased(MouseButton button);
+	bool mouseButtonIsDown(MouseButton button);
 
 	void poll();
 	void update();
@@ -37,9 +49,9 @@ public:
 	static InputHandler *getInstance();
 
 private:
-	class KeyState {
+	class ButtonState {
 	public:
-		KeyState();
+		ButtonState();
 
 		void press();
 		void release();
@@ -60,9 +72,13 @@ private:
 	InputHandler(const InputHandler &ih) = delete;
 	InputHandler &operator=(const InputHandler &ih) = delete;
 
-	KeyState _keys[KEY_NB_ITEMS];
-	std::map<int, Key> _invertConfig;
-	int _config[KEY_NB_ITEMS];
+	ButtonState _keys[KEY_NB_ITEMS];
+	std::map<int, Key> _invertConfigKey;
+	int _configKey[KEY_NB_ITEMS];
+
+	ButtonState _mouseButtons[MOUSE_BUTTON_NB_ITEMS];
+	std::map<int, MouseButton> _invertConfigMouseButton;
+	int _configMouseButton[MOUSE_BUTTON_NB_ITEMS];
 
 	float _lastMouseX;
 	float _lastMouseY;

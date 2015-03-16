@@ -46,6 +46,7 @@ void run(int argc, char *argv[])
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetKeyCallback(window, InputHandler::keyCallback);
 	glfwSetCursorPosCallback(window, InputHandler::mousePositionCallback);
+	glfwSetMouseButtonCallback(window, InputHandler::mouseButtonCallback);
 
 	glfwMakeContextCurrent(window);
 
@@ -100,13 +101,9 @@ void run(int argc, char *argv[])
 
 		defaultShader["u_f"].set1f(mouseX / 10000.0f);
 
-		cout << mouseX << endl;
-
 		glClear(GL_COLOR_BUFFER_BIT);
 		vao.drawElements();
 		glfwSwapBuffers(window);
-
-		input->update();
 	}
 
 	vao.unbind();
