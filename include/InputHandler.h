@@ -46,7 +46,7 @@ public:
 	void poll();
 	void update();
 
-	static InputHandler *getInstance();
+	static InputHandler &getInstance();
 
 private:
 	class ButtonState {

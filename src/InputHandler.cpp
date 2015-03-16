@@ -5,13 +5,13 @@ using namespace std;
 InputHandler InputHandler::_instance;
 bool InputHandler::_initialized = false;
 
-InputHandler *InputHandler::getInstance()
+InputHandler &InputHandler::getInstance()
 {
 	if (!_initialized) {
 		_initialized = true;
 	}
 
-	return &_instance;
+	return _instance;
 }
 
 InputHandler::InputHandler()

@@ -41,7 +41,7 @@ void run(int argc, char *argv[])
 		throw runtime_error("Couldn't create GLFWwindow.");
 	}
 
-	InputHandler *input = InputHandler::getInstance();
+	InputHandler &input = InputHandler::getInstance();
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetKeyCallback(window, InputHandler::keyCallback);
@@ -89,13 +89,13 @@ void run(int argc, char *argv[])
 	float mouseX = 0, mouseY = 0;
 
 	while (running) {
-		input->poll();
+		input.poll();
 
-		if (glfwWindowShouldClose(window) || input->keyWasPressed(InputHandler::Quit))
+		if (glfwWindowShouldClose(window) || input.keyWasPressed(InputHandler::Quit))
 			running = false;
 
 		float dx, dy;
-		input->mouseMotion(dx, dy);
+		input.mouseMotion(dx, dy);
 		mouseX += dx;
 		mouseY += dy;
 
