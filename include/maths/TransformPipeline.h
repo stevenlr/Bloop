@@ -7,6 +7,8 @@
 #include "maths/Matrix.h"
 #include "maths/Quaternion.h"
 
+#include "graphics/Camera.h"
+
 class TransformPipeline {
 public:
 	TransformPipeline();
@@ -17,6 +19,7 @@ public:
 	void orthographicProjection(float left, float right, float bottom, float top, float near, float far);
 	void perspectiveProjection(float fov, float width, float height, float near, float far);
 	void lookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up);
+	void lookAt(const Camera &camera);
 
 	void identity();
 

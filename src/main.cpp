@@ -14,9 +14,12 @@
 #include "graphics/opengl/VertexArray.h"
 #include "graphics/opengl/ElementIndexArray.h"
 
+#include "graphics/Camera.h"
+
 #include "maths/Vector.h"
 #include "maths/Matrix.h"
 #include "maths/MatrixFactory.h"
+#include "maths/TransformPipeline.h"
 
 using namespace std;
 
@@ -63,30 +66,61 @@ void run(int argc, char *argv[])
 
 	ShaderProgram defaultShader("shaders/default.vert", "shaders/default.frag");
 	defaultShader.bindAttribLocation("in_Position", 0);
+	defaultShader.bindAttribLocation("in_Color", 1);
 	defaultShader.bindFragDataLocation("out_Color", 0);
 	defaultShader.link();
 	defaultShader.bind();
 
 	defaultShader["u_f"].set1f(0.5f);
 
-	VertexArray vao(VertexArray::Triangles, 6);
+	VertexArray vao(VertexArray::Triangles, 36);
 
-	Vector3 vertices[] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
-	GLubyte indices[] = {0, 1, 2, 2, 1, 3};
+	Vector3 vertices[] = {
+		{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0},
+		{0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}
+	};
+
+	Vector3 colors[] = {
+		{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0},
+		{0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}
+	};
+
+	GLubyte indices[] = {
+		3, 1, 0, 0, 2, 3,
+		4, 5, 7, 7, 6, 4,
+		1, 3, 7, 7, 5, 1,
+		6, 2, 0, 0, 4, 6,
+		0, 1, 5, 5, 4, 0,
+		7, 3, 2, 2, 6, 7
+	};
 
 	Buffer bufferPos(Buffer::Array, Buffer::StaticDraw);
 	bufferPos.data(sizeof(vertices), vertices);
+
+	Buffer bufferColor(Buffer::Array, Buffer::StaticDraw);
+	bufferColor.data(sizeof(colors), colors);
 
 	Buffer bufferIndex(Buffer::ElementArray, Buffer::StaticDraw);
 	bufferIndex.data(sizeof(indices), indices);
 	
 	vao.addAttrib(0, VertexAttrib(&bufferPos, 3, VertexAttrib::Float));
+	vao.addAttrib(1, VertexAttrib(&bufferColor, 3, VertexAttrib::Float));
 	vao.setElementIndexArray(ElementIndexArray(&bufferIndex, ElementIndexArray::UnsignedByte));
 
 	vao.bind();
 
+	TransformPipeline tp;
+	Camera camera({-3, 0.5, 0.5});
+
+	tp.perspectiveProjection(70, 1280, 720, 0.1, 10000);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+	glEnable(GL_DEPTH_TEST);
+
 	bool running = true;
-	float mouseX = 0, mouseY = 0;
 
 	while (running) {
 		input.poll();
@@ -94,14 +128,12 @@ void run(int argc, char *argv[])
 		if (glfwWindowShouldClose(window) || input.keyWasPressed(InputHandler::Quit))
 			running = false;
 
-		float dx, dy;
-		input.mouseMotion(dx, dy);
-		mouseX += dx;
-		mouseY += dy;
+		camera.update();
+		tp.lookAt(camera);
 
-		defaultShader["u_f"].set1f(mouseX / 10000.0f);
+		defaultShader["u_PvmMatrix"].setMatrix4(tp.getPVMMatrix());
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		vao.drawElements();
 		glfwSwapBuffers(window);
 	}

@@ -10,7 +10,10 @@
 template <int S>
 class Vector {
 public:
-	Vector() = default;
+	Vector()
+	{
+		std::fill_n(_data, S, 0.0f);
+	}
 
 	Vector(const Vector<S> &v)
 	{
@@ -74,7 +77,7 @@ public:
 		float *dst = _data;
 
 		for (int i = 0; i < S; ++i) {
-			*dst += *src++;
+			*dst++ += *src++;
 		}
 
 		return *this;
@@ -160,11 +163,11 @@ public:
 	float dot(const Vector<S> &v) const
 	{
 		float sum = 0;
-		const float *src = _data;
+		const float *src1 = _data;
+		const float *src2 = v._data;
 
 		for (int i = 0; i < S; ++i) {
-			sum += *src * *src;
-			++src;
+			sum += *src1++ * *src2++;
 		}
 
 		return sum;

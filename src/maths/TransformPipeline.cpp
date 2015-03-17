@@ -37,6 +37,12 @@ void TransformPipeline::lookAt(const Vector3 &position, const Vector3 &target, c
 	_isDirty = true;
 }
 
+void TransformPipeline::lookAt(const Camera &camera)
+{
+	_view = camera.toLookAtMatrix();
+	_isDirty = true;
+}
+
 void TransformPipeline::identity()
 {
 	_model->identity();
