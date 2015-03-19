@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
 import sys
+import struct
+import zlib
 from math import sqrt
+from array import array
 
 positions = []
 normals = []
@@ -62,8 +65,21 @@ def compute_tangents():
 		compute_tangent(face)
 
 def make_buffer():
-	# TODO
-	return
+	attributes_buffer = array('f')
+	tangents_buffer = array('f')
+	
+	for f in range(0, len(triangles)):
+		face = triangles[f]
+		tangents_buffer.fromlist(tangents[f])
+
+		for i in range(0, 3):
+			vertex = face[i]
+
+			attributes_buffer.fromlist(positions[vertex[0] - 1])
+			attributes_buffer.fromlist(normals[vertex[2] - 1])
+			attributes_buffer.fromlist(textures[vertex[1] - 1])
+
+	return [attributes_buffer, tangents_buffer]
 
 def main(args):
 	if len(args) < 2:
@@ -93,7 +109,15 @@ def main(args):
 			register_face(line[2:])
 
 	compute_tangents()
-	buf = make_buffer()
+	[buf_attribs, buf_tangents] = make_buffer()
+
+	output_buffer = buf_attribs.tostring()
+	output_buffer += buf_tangents.tostring()
+
+	f = open(output_filename, "wb+")
+	f.write(struct.pack('I', len(triangles)))
+	f.write(zlib.compress(output_buffer))
+	f.close()
 
 
 if __name__ == "__main__":
