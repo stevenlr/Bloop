@@ -45,14 +45,20 @@ public:
 	const Matrix4 &getViewMatrix() const;
 	const Matrix4 &getModelMatrix() const;
 	const Matrix4 &getPVMMatrix();
+	const Matrix4 &getViewModelMatrix();
+	const Matrix3 &getNormalMatrix();
 
 private:
+	void computeCache();
+
 	Matrix4 _projection;
 	Matrix4 _view;
 	Matrix4 *_model;
 	std::stack<Matrix4 *> _modelStack;
 	bool _isDirty = true;
 	Matrix4 _pvmCache;
+	Matrix4 _viewModelCache;
+	Matrix3 _normalCache;
 };
 
 #endif

@@ -148,11 +148,41 @@ const Matrix4 &TransformPipeline::getModelMatrix() const
 
 const Matrix4 &TransformPipeline::getPVMMatrix()
 {
-	if (_isDirty) {
-		_pvmCache.identity();
-		_pvmCache = _projection * _view * *_model;
-		_isDirty = false;
-	}
+	if (_isDirty)
+		computeCache();
 
 	return _pvmCache;
+}
+
+const Matrix4 &TransformPipeline::getViewModelMatrix()
+{
+	if (_isDirty)
+		computeCache();
+
+	return _viewModelCache;
+}
+
+const Matrix3 &TransformPipeline::getNormalMatrix()
+{
+	if (_isDirty)
+		computeCache();
+
+	return _normalCache;
+}
+
+void TransformPipeline::computeCache()
+{
+	_viewModelCache = _view * *_model;
+	_pvmCache = _projection * _viewModelCache;
+	
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			_normalCache(i, j) = _viewModelCache(i, j);
+		}
+	}
+
+	_normalCache.invert();
+	_normalCache.transpose();
+
+	_isDirty = false;
 }
