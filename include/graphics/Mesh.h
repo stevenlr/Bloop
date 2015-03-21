@@ -13,14 +13,12 @@ public:
 	Mesh(const Mesh &mesh) = delete;
 	Mesh &operator=(const Mesh &mesh) = delete;
 
-	void setMainBufferData(float *data);
-	void setTangentsBufferData(float *data);
+	void setBufferData(float *data);
 	void draw() const;
 
 private:
 	unsigned int _nbFaces;
-	Buffer _mainBuffer;
-	Buffer _tangentsBuffer;
+	Buffer _buffer;
 	VertexArray _vao;
 };
 

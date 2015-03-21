@@ -66,11 +66,9 @@ def compute_tangents():
 
 def make_buffer():
 	attributes_buffer = array('f')
-	tangents_buffer = array('f')
 	
 	for f in range(0, len(triangles)):
 		face = triangles[f]
-		tangents_buffer.fromlist(tangents[f])
 
 		for i in range(0, 3):
 			vertex = face[i]
@@ -78,8 +76,9 @@ def make_buffer():
 			attributes_buffer.fromlist(positions[vertex[0] - 1])
 			attributes_buffer.fromlist(normals[vertex[2] - 1])
 			attributes_buffer.fromlist(textures[vertex[1] - 1])
+			attributes_buffer.fromlist(tangents[f])
 
-	return [attributes_buffer, tangents_buffer]
+	return attributes_buffer
 
 def main(args):
 	if len(args) < 2:
@@ -109,10 +108,9 @@ def main(args):
 			register_face(line[2:])
 
 	compute_tangents()
-	[buf_attribs, buf_tangents] = make_buffer()
+	buf_attribs = make_buffer()
 
 	output_buffer = buf_attribs.tostring()
-	output_buffer += buf_tangents.tostring()
 
 	f = open(output_filename, "wb+")
 	f.write(struct.pack('I', len(triangles)))

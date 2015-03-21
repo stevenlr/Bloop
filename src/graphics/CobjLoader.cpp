@@ -27,10 +27,9 @@ Mesh *loadCobjModel(string filename)
 	file.read(reinterpret_cast<char *>(&nbFaces), sizeof(unsigned int));
 	mesh = new Mesh(nbFaces);
 
-	int mainBufferSize = nbFaces * 3 * (3 + 3 + 2) * sizeof(float);
-	int tangentBufferSize = nbFaces * 3 * sizeof(float);
+	int bufferSize = nbFaces * 3 * (3 + 3 + 2 + 3) * sizeof(float);
 
-	float *buffer = new float[mainBufferSize + tangentBufferSize];
+	float *buffer = new float[bufferSize];
 
 	z_stream zstream;
 	int zhave, zret;
@@ -86,8 +85,7 @@ Mesh *loadCobjModel(string filename)
 	inflateEnd(&zstream);
 	file.close();
 
-	mesh->setMainBufferData(buffer);
-	mesh->setTangentsBufferData(buffer + mainBufferSize / sizeof(float));
+	mesh->setBufferData(buffer);
 
 	delete[] buffer;
 
