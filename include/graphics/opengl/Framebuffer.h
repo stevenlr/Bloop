@@ -1,9 +1,11 @@
 #ifndef GRAPHICS_OPENGL_FRAMEBUFFER_H
 #define GRAPHICS_OPENGL_FRAMEBUFFER_H
 
+#include <vector>
 #include <GL/glew.h>
 
 #include "graphics/opengl/Texture.h"
+#include "graphics/opengl/Renderbuffer.h"
 
 class Framebuffer {
 public:
@@ -28,7 +30,10 @@ public:
 	void bind(Target target);
 	void unbind(Target target);
 
+	void drawBuffers(const std::vector<Attachment> &list);
+
 	void attachTexture(const Texture &texture, Attachment attachment);
+	void attachRenderbuffer(const Renderbuffer &renderbuffer, Attachment attachment);
 
 private:
 	GLuint _id;

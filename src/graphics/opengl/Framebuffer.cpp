@@ -45,6 +45,19 @@ void Framebuffer::unbind(Target target)
 	bound = 0;
 }
 
+void Framebuffer::drawBuffers(const std::vector<Attachment> &list)
+{
+	GLuint bound = (_boundTo == ReadFramebuffer) ? _boundRead : _boundDraw;
+
+	if (bound != _id)
+		glBindFramebuffer(_boundTo, _id);
+
+	glDrawBuffers(list.size(), reinterpret_cast<const GLenum *>(list.data()));
+
+	if (bound != _id)
+		glBindFramebuffer(_boundTo, bound);
+}
+
 void Framebuffer::attachTexture(const Texture &texture, Attachment attachment)
 {
 	GLuint bound = (_boundTo == ReadFramebuffer) ? _boundRead : _boundDraw;
@@ -53,6 +66,19 @@ void Framebuffer::attachTexture(const Texture &texture, Attachment attachment)
 		glBindFramebuffer(_boundTo, _id);
 
 	glFramebufferTexture2D(_boundTo, attachment, GL_TEXTURE_2D, texture.getId(), 0);
+
+	if (bound != _id)
+		glBindFramebuffer(_boundTo, bound);
+}
+
+void Framebuffer::attachRenderbuffer(const Renderbuffer &renderbuffer, Attachment attachment)
+{
+	GLuint bound = (_boundTo == ReadFramebuffer) ? _boundRead : _boundDraw;
+
+	if (bound != _id)
+		glBindFramebuffer(_boundTo, _id);
+
+	glFramebufferRenderbuffer(_boundTo, attachment, GL_RENDERBUFFER, renderbuffer.getId());
 
 	if (bound != _id)
 		glBindFramebuffer(_boundTo, bound);
