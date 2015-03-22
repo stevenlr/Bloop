@@ -5,6 +5,7 @@
 
 #include "graphics/opengl/Buffer.h"
 #include "graphics/opengl/VertexArray.h"
+#include "graphics/opengl/VertexAttrib.h"
 
 class Mesh {
 public:
@@ -14,7 +15,10 @@ public:
 	Mesh &operator=(const Mesh &mesh) = delete;
 
 	void setBufferData(float *data);
+	void addAttrib(GLuint index, const VertexAttrib &attrib);
+
 	void draw() const;
+	void drawInstanced(int count) const;
 
 private:
 	unsigned int _nbFaces;

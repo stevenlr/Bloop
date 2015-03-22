@@ -41,6 +41,8 @@ public:
 
 	void drawArrays() const;
 	void drawElements() const;
+	void drawArraysInstanced(int count) const;
+	void drawElementsInstanced(int count) const;
 
 private:
 	GLuint _id;

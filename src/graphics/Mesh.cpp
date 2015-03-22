@@ -29,9 +29,24 @@ void Mesh::setBufferData(float *data)
 	_buffer.data(size, data);
 }
 
+void Mesh::addAttrib(GLuint index, const VertexAttrib &attrib)
+{
+	if (index < 4)
+		throw runtime_error("Overriding mesh data with new vertex attrib.");
+
+	_vao.addAttrib(index, attrib);
+}
+
 void Mesh::draw() const
 {
 	_vao.bind();
 	_vao.drawArrays();
+	_vao.unbind();
+}
+
+void Mesh::drawInstanced(int count) const
+{
+	_vao.bind();
+	_vao.drawArraysInstanced(count);
 	_vao.unbind();
 }

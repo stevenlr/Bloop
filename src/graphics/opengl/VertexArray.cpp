@@ -73,6 +73,25 @@ void VertexArray::drawElements() const
 	glDrawElements(_mode, _count, _eiaType, nullptr);
 }
 
+void VertexArray::drawArraysInstanced(int count) const
+{
+	if (_boundVertexArray != _id)
+		throw runtime_error("Drawing unbound vertex array.");
+
+	glDrawArraysInstanced(_mode, _offset, _count, count);
+}
+
+void VertexArray::drawElementsInstanced(int count) const
+{
+	if (_boundVertexArray != _id)
+		throw runtime_error("Drawing unbound vertex array.");
+
+	if (!_useEia)
+		throw runtime_error("Called drawElement on vertex array without element index array bound.");
+
+	glDrawElementsInstanced(_mode, _count, _eiaType, nullptr, count);
+}
+
 void VertexArray::addAttrib(GLuint index, const VertexAttrib &attrib)
 {
 	if (index >= 16)
