@@ -16,6 +16,7 @@
 
 #include "graphics/Camera.h"
 #include "graphics/CobjLoader.h"
+#include "graphics/PngLoader.h"
 #include "graphics/Mesh.h"
 
 #include "maths/Vector.h"
@@ -88,7 +89,18 @@ void run(int argc, char *argv[])
 
 	bool running = true;
 
-	Mesh *suzanne = loadCobjModel("scripts/suzanne.cobj");
+	Mesh *suzanne = loadCobjModel("models/suzanne.cobj");
+	Texture *gravelDiffuse = loadPngTexture("textures/gravel-diffuse.png");
+	Texture *gravelSpecular = loadPngTexture("textures/gravel-specular.png");
+	Texture *gravelNormal = loadPngTexture("textures/gravel-normal.png");
+
+	gravelDiffuse->bind(1);
+	gravelNormal->bind(2);
+	gravelSpecular->bind(3);
+
+	defaultShader["u_DiffuseTexture"].set1i(1);
+	defaultShader["u_SpecularTexture"].set1i(3);
+	defaultShader["u_NormalTexture"].set1i(2);
 
 	while (running) {
 		input.poll();
@@ -112,6 +124,9 @@ void run(int argc, char *argv[])
 	}
 
 	delete suzanne;
+	delete gravelDiffuse;
+	delete gravelSpecular;
+	delete gravelNormal;
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

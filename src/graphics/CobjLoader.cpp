@@ -37,8 +37,8 @@ Mesh *loadCobjModel(string filename)
 	unsigned char *zOutBuffer = reinterpret_cast<unsigned char*>(buffer);
 
 	zstream.zalloc = Z_NULL;
-    zstream.zfree = Z_NULL;
-    zstream.opaque = Z_NULL;
+	zstream.zfree = Z_NULL;
+	zstream.opaque = Z_NULL;
 
     if (inflateInit(&zstream) != Z_OK)
         throw runtime_error("Error when initializing zip stream deflating. See logs.");

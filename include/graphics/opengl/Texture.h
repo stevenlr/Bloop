@@ -26,6 +26,16 @@ public:
 		R8i = GL_R8I,
 		R8ui = GL_R8UI,
 
+		RG32f = GL_RG32F,
+		RG32i = GL_RG32I,
+		RG32ui = GL_RG32UI,
+		RG16f = GL_RG16F,
+		RG16i = GL_RG16I,
+		RG16ui = GL_RG16UI,
+		RG8 = GL_RG8,
+		RG8i = GL_RG8I,
+		RG8ui = GL_RG8UI,
+
 		RGB32f = GL_RGB32F,
 		RGB32i = GL_RGB32I,
 		RGB32ui = GL_RGB32UI,
