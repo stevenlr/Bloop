@@ -4,14 +4,15 @@ in vec3 v_Position;
 in vec3 v_Normal;
 in vec2 v_TextureCoords;
 in vec3 v_Tangent;
-
 in vec3 v_LightDir;
 
-out vec4 out_Color;
-
+uniform mat4 u_InverseViewMatrix;
 uniform sampler2D u_DiffuseTexture;
 uniform sampler2D u_NormalTexture;
 uniform sampler2D u_SpecularTexture;
+uniform samplerCube u_Cubemap;
+
+out vec4 out_Color;
 
 vec3 computeNormal()
 {
@@ -30,12 +31,17 @@ void main()
 	vec3 diffuseColor = texture2D(u_DiffuseTexture, v_TextureCoords).rgb;
 	float specularIntensity = texture2D(u_SpecularTexture, v_TextureCoords).r;
 
-	const vec3 diffuseLightColor = vec3(0.95, 0.9, 0.7) * 0.8;
-	const vec3 ambientLightColor = vec3(0.05, 0.05, 0.08);
 	const vec3 specularColor = vec3(1, 1, 1);
 
-	float diffuseFactor = max(0, dot(-v_LightDir, normal));
+	float ambientFactor = 0.5;
+	float diffuseFactor = max(0, dot(-v_LightDir, normal)) * (1 - ambientFactor);
 	float specularFactor = pow(max(0, dot(reflect(-v_LightDir, normal), normalize(v_Position))), 10) * specularIntensity;
 
-	out_Color = vec4(diffuseColor * (ambientLightColor + diffuseLightColor * diffuseFactor) + specularFactor * specularColor, 1);
+	specularFactor = (specularFactor + 0.15) / 1.15;
+
+	vec3 reflected = (u_InverseViewMatrix * vec4(reflect(normalize(v_Position), normal), 0)).xzy * vec3(1, -1, 1);
+	vec3 cubemapReflectColor = textureLod(u_Cubemap, reflected, 4).rgb;
+	vec3 cubemapAmbientColor = textureLod(u_Cubemap, (u_InverseViewMatrix * vec4(v_Normal, 0)).xzy * vec3(1, -1, 1), 8).rgb;
+
+	out_Color = vec4(diffuseColor * cubemapAmbientColor * (diffuseFactor + ambientFactor) + specularFactor * cubemapReflectColor, 1);
 }

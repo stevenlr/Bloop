@@ -47,6 +47,7 @@ public:
 	const Matrix4 &getPVMMatrix();
 	const Matrix4 &getViewModelMatrix();
 	const Matrix3 &getNormalMatrix();
+	const Matrix4 &getInverseViewMatrix();
 
 private:
 	void computeCache();
@@ -59,6 +60,7 @@ private:
 	Matrix4 _pvmCache;
 	Matrix4 _viewModelCache;
 	Matrix3 _normalCache;
+	Matrix4 _inverseViewCache;
 };
 
 #endif

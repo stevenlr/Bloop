@@ -14,7 +14,6 @@ out vec3 v_Position;
 out vec3 v_Normal;
 out vec2 v_TextureCoords;
 out vec3 v_Tangent;
-
 out vec3 v_LightDir;
 
 void main()
@@ -26,5 +25,5 @@ void main()
 	v_TextureCoords = in_TextureCoords;
 	v_Tangent = normalize((u_ModelViewMatrix * vec4(in_Tangent, 1)).xyz);
 
-	v_LightDir = normalize((u_ViewMatrix * vec4(0.5, 0.5, -1.5, 0)).xyz);
+	v_LightDir = normalize((u_ViewMatrix * vec4(0, -1, -1, 0)).xyz);
 }

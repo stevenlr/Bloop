@@ -75,7 +75,11 @@ void run(int argc, char *argv[])
 	defaultShader.bindAttribLocation("in_Tangent", 3);
 	defaultShader.bindFragDataLocation("out_Color", 0);
 	defaultShader.link();
-	defaultShader.bind();
+
+	ShaderProgram cubemapShader("shaders/cubemap.vert", "shaders/cubemap.frag");
+	cubemapShader.bindAttribLocation("in_Position", 0);
+	cubemapShader.bindFragDataLocation("out_Color", 0);
+	cubemapShader.link();
 
 	TransformPipeline tp;
 	Camera camera({-3, 0.5, 0.5});
@@ -87,27 +91,50 @@ void run(int argc, char *argv[])
 	glFrontFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	bool running = true;
 
-	Sampler sampler(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::Repeat);
+	Sampler samplerMipmap(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::Repeat);
+	Sampler samplerCubemap(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::ClampToEdge);
 
 	Mesh *suzanne = loadCobjModel("models/suzanne.cobj");
+	Mesh *environmentCube = loadCobjModel("models/environment_cube.cobj");
+
 	Texture *gravelDiffuse = loadPngTexture("textures/gravel-diffuse.png", true);
 	Texture *gravelSpecular = loadPngTexture("textures/gravel-specular.png", true);
 	Texture *gravelNormal = loadPngTexture("textures/gravel-normal.png", true);
 
-	sampler.bind(1);
-	sampler.bind(2);
-	sampler.bind(3);
+	samplerMipmap.bind(1);
+	samplerMipmap.bind(2);
+	samplerMipmap.bind(3);
 
 	gravelDiffuse->bind(1);
 	gravelNormal->bind(2);
 	gravelSpecular->bind(3);
 
+	Cubemap *cubemap = loadPngCubemap({
+		"textures/cubemap/posx.png",
+		"textures/cubemap/negx.png",
+		"textures/cubemap/negy.png",
+		"textures/cubemap/posy.png",
+		"textures/cubemap/posz.png",
+		"textures/cubemap/negz.png"
+	}, true);
+
+	samplerCubemap.bind(4);
+	cubemap->bind(4);
+
+	defaultShader.bind();
 	defaultShader["u_DiffuseTexture"].set1i(1);
 	defaultShader["u_SpecularTexture"].set1i(3);
 	defaultShader["u_NormalTexture"].set1i(2);
+	defaultShader["u_Cubemap"].set1i(4);
+
+	cubemapShader.bind();
+	cubemapShader["u_Cubemap"].set1i(4);
+	
+	tp.rotationZ(1.7);
 
 	while (running) {
 		input.poll();
@@ -118,22 +145,35 @@ void run(int argc, char *argv[])
 		camera.update();
 		tp.lookAt(camera);
 
-		defaultShader["u_PvmMatrix"].setMatrix4(tp.getPVMMatrix());
-		defaultShader["u_ViewMatrix"].setMatrix4(tp.getViewMatrix());
-		defaultShader["u_ModelViewMatrix"].setMatrix4(tp.getViewModelMatrix());
-		defaultShader["u_NormalMatrix"].setMatrix3(tp.getNormalMatrix());
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		defaultShader.bind();
+		defaultShader["u_PvmMatrix"].setMatrix4(tp.getPVMMatrix());
+		defaultShader["u_ViewMatrix"].setMatrix4(tp.getViewMatrix());
+		defaultShader["u_InverseViewMatrix"].setMatrix4(tp.getInverseViewMatrix());
+		defaultShader["u_ModelViewMatrix"].setMatrix4(tp.getViewModelMatrix());
+		defaultShader["u_NormalMatrix"].setMatrix3(tp.getNormalMatrix());
 		suzanne->draw();
+
+		tp.saveModel();
+		tp.identity();
+		cubemapShader.bind();
+		cubemapShader["u_PvmMatrix"].setMatrix4(tp.getPVMMatrix());
+		glDepthFunc(GL_LEQUAL);
+		environmentCube->draw();
+		glDepthFunc(GL_LESS);
+
+		tp.restoreModel();
 
 		glfwSwapBuffers(window);
 	}
 
+	delete environmentCube;
 	delete suzanne;
 	delete gravelDiffuse;
 	delete gravelSpecular;
 	delete gravelNormal;
+	delete cubemap;
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

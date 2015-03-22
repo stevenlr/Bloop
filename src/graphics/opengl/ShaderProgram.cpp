@@ -116,7 +116,11 @@ Uniform ShaderProgram::getUniform(const std::string &name)
 		return it->second;
 	}
 
-	return Uniform(glGetUniformLocation(_id, name.c_str()), _id);
+	Uniform uniform(glGetUniformLocation(_id, name.c_str()), _id);
+
+	_uniforms.insert(make_pair(name, uniform));
+
+	return uniform;
 }
 
 Uniform ShaderProgram::operator[](const std::string &name)

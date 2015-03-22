@@ -170,6 +170,14 @@ const Matrix3 &TransformPipeline::getNormalMatrix()
 	return _normalCache;
 }
 
+const Matrix4 &TransformPipeline::getInverseViewMatrix()
+{
+	if (_isDirty)
+		computeCache();
+
+	return _inverseViewCache;
+}
+
 void TransformPipeline::computeCache()
 {
 	_viewModelCache = _view * *_model;
@@ -183,6 +191,9 @@ void TransformPipeline::computeCache()
 
 	_normalCache.invert();
 	_normalCache.transpose();
+
+	_inverseViewCache = _view;
+	_inverseViewCache.invert();
 
 	_isDirty = false;
 }
