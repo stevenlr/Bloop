@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 
+#define MAX_TEXTURE_UNITS 48
+
 class Texture {
 public:
 	enum InternalFormat : GLenum {
@@ -84,6 +86,8 @@ public:
 	void unbind(int unit);
 
 	GLuint getId() const;
+
+	void generateMipmaps();
 
 private:
 	GLuint _id;

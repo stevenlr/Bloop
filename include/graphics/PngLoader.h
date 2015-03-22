@@ -5,6 +5,6 @@
 
 #include "graphics/opengl/Texture.h"
 
-Texture *loadPngTexture(const std::string &filename);
+Texture *loadPngTexture(const std::string &filename, bool mipmaps = false);
 
 #endif

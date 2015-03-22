@@ -4,8 +4,6 @@
 
 using namespace std;
 
-#define MAX_TEXTURE_UNITS 48
-
 Texture::Texture(int width, int height, InternalFormat internalFormat, Format format, Type type, const void *data)
 {
 	glGenTextures(1, &_id);
@@ -16,10 +14,6 @@ Texture::Texture(int width, int height, InternalFormat internalFormat, Format fo
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -50,4 +44,12 @@ void Texture::unbind(int unit)
 GLuint Texture::getId() const
 {
 	return _id;
+}
+
+void Texture::generateMipmaps()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _id);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

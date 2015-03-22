@@ -33,7 +33,7 @@ namespace {
 	}
 }
 
-Texture *loadPngTexture(const std::string &filename)
+Texture *loadPngTexture(const std::string &filename, bool mipmaps)
 {
 	Texture *texture = nullptr;
 	ifstream file(filename, ios_base::in | ios_base::binary);
@@ -145,6 +145,9 @@ Texture *loadPngTexture(const std::string &filename)
 	}
 
 	texture = new Texture(width, height, internalFormat, format, Texture::UnsignedByte, static_cast<const void *>(data));
+
+	if (mipmaps)
+		texture->generateMipmaps();
 
 	delete[] data;
 

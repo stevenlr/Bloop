@@ -13,6 +13,7 @@
 #include "graphics/opengl/Buffer.h"
 #include "graphics/opengl/VertexArray.h"
 #include "graphics/opengl/ElementIndexArray.h"
+#include "graphics/opengl/Sampler.h"
 
 #include "graphics/Camera.h"
 #include "graphics/CobjLoader.h"
@@ -89,10 +90,16 @@ void run(int argc, char *argv[])
 
 	bool running = true;
 
+	Sampler sampler(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::Repeat);
+
 	Mesh *suzanne = loadCobjModel("models/suzanne.cobj");
-	Texture *gravelDiffuse = loadPngTexture("textures/gravel-diffuse.png");
-	Texture *gravelSpecular = loadPngTexture("textures/gravel-specular.png");
-	Texture *gravelNormal = loadPngTexture("textures/gravel-normal.png");
+	Texture *gravelDiffuse = loadPngTexture("textures/gravel-diffuse.png", true);
+	Texture *gravelSpecular = loadPngTexture("textures/gravel-specular.png", true);
+	Texture *gravelNormal = loadPngTexture("textures/gravel-normal.png", true);
+
+	sampler.bind(1);
+	sampler.bind(2);
+	sampler.bind(3);
 
 	gravelDiffuse->bind(1);
 	gravelNormal->bind(2);
