@@ -102,8 +102,10 @@ void ShaderProgram::bind() const
 
 void ShaderProgram::unbind() const
 {
-	if (_boundProgram == _id)
+	if (_boundProgram == _id) {
 		glUseProgram(0);
+		_boundProgram = 0;
+	}
 	else
 		throw runtime_error("Unbounding program from other program.");
 }

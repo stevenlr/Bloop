@@ -43,5 +43,7 @@ void main()
 	vec3 cubemapReflectColor = textureLod(u_Cubemap, reflected, 4).rgb;
 	vec3 cubemapAmbientColor = textureLod(u_Cubemap, (u_InverseViewMatrix * vec4(v_Normal, 0)).xzy * vec3(1, -1, 1), 8).rgb;
 
-	out_Color = vec4(diffuseColor * cubemapAmbientColor * (diffuseFactor + ambientFactor) + specularFactor * cubemapReflectColor, 1);
+	float rimFactor = pow(1 - abs(dot(v_Normal, v_LightDir)), 1) * (dot(v_LightDir, vec3(0, 0, 1)) + 1) / 2;
+
+	out_Color = vec4(diffuseColor * cubemapAmbientColor * (diffuseFactor + ambientFactor + rimFactor) + specularFactor * cubemapReflectColor, 1);
 }

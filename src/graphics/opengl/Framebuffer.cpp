@@ -47,15 +47,10 @@ void Framebuffer::unbind(Target target)
 
 void Framebuffer::drawBuffers(const std::vector<Attachment> &list)
 {
-	GLuint bound = (_boundTo == ReadFramebuffer) ? _boundRead : _boundDraw;
-
-	if (bound != _id)
-		glBindFramebuffer(_boundTo, _id);
+	if (_boundTo != DrawFramebuffer || _boundDraw != _id)
+		throw runtime_error("Setting draw buffers to a framebuffer not bound to draw target.");
 
 	glDrawBuffers(list.size(), reinterpret_cast<const GLenum *>(list.data()));
-
-	if (bound != _id)
-		glBindFramebuffer(_boundTo, bound);
 }
 
 void Framebuffer::attachTexture(const Texture &texture, Attachment attachment)

@@ -63,7 +63,9 @@ public:
 		RGB = GL_RGB,
 		BGR = GL_BGR,
 		RGBA = GL_RGBA,
-		BGRA = GL_BGRA
+		BGRA = GL_BGRA,
+		Depth = GL_DEPTH_COMPONENT,
+		DepthStencil = GL_DEPTH_STENCIL
 	};
 
 	enum Type : GLenum {
