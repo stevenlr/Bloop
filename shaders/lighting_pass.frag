@@ -1,10 +1,12 @@
 #version 330
 
 in vec2 v_Position;
+in vec3 v_LightDir;
 
 uniform sampler2D u_DiffuseTexture;
 uniform sampler2D u_NormalTexture;
 uniform sampler2D u_PositionTexture;
+uniform vec3 u_LightColor;
 
 out vec4 out_Color;
 
@@ -14,5 +16,5 @@ void main()
 	vec3 normal = texture2D(u_NormalTexture, v_Position).xyz;
 	vec3 position = texture2D(u_PositionTexture, v_Position).xyz;
 
-	out_Color = vec4(texture2D(u_DiffuseTexture, v_Position).rgb * dot(normal, vec3(0, 1, 0)), 1);
+	out_Color = vec4(diffuseColor * max(0, dot(normal, v_LightDir)) * u_LightColor, 1);
 }

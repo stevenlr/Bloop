@@ -157,6 +157,8 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	glFrontFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND);
 
 	bool running = true;
 
@@ -176,6 +178,31 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	quadVao.addAttrib(0, VertexAttrib(&quadCoordsBuffer, 2, VertexAttrib::Float));
 	quadVao.setElementIndexArray(ElementIndexArray(&quadIndicesBuffer));
 
+	// ----- Cubemap -------
+
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	Sampler samplerCubemap(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::ClampToEdge);
+	Mesh *environmentCube = loadCobjModel("models/environment_cube.cobj");
+
+	ShaderProgram cubemapShader("shaders/cubemap.vert", "shaders/cubemap.frag");
+	cubemapShader.bindAttribLocation("in_Position", 0);
+	cubemapShader.bindFragDataLocation("out_Color", 0);
+	cubemapShader.link();
+
+	Cubemap *cubemap = loadPngCubemap({
+		"textures/cubemap/posx.png",
+		"textures/cubemap/negx.png",
+		"textures/cubemap/negy.png",
+		"textures/cubemap/posy.png",
+		"textures/cubemap/posz.png",
+		"textures/cubemap/negz.png"
+	}, true);
+
+	cubemapShader.bind();
+	cubemapShader["u_Cubemap"].set1i(1);
+	cubemapShader.unbind();
+
 	// ----- Scene ---------
 
 	Sampler samplerMipmap(Sampler::MinLinearMipmapLinear, Sampler::MagLinear, Sampler::Repeat);
@@ -191,14 +218,14 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	Texture *gbufferDiffuse = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
 	Texture *gbufferNormal = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
 	Texture *gbufferPosition = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
-	Texture *gbufferDepth = new Texture(1280, 720, Texture::DepthComponent32f, Texture::Depth, Texture::Float);
+	Renderbuffer *gbufferDepth = new Renderbuffer(1280, 720, Renderbuffer::Depth24Stencil8);
 
 	Framebuffer *framebuffer = new Framebuffer();
 	framebuffer->bind(Framebuffer::DrawFramebuffer);
 	framebuffer->attachTexture(*gbufferDiffuse, Framebuffer::Color0);
 	framebuffer->attachTexture(*gbufferNormal, Framebuffer::Color1);
 	framebuffer->attachTexture(*gbufferPosition, Framebuffer::Color2);
-	framebuffer->attachTexture(*gbufferDepth, Framebuffer::Depth);
+	framebuffer->attachRenderbuffer(*gbufferDepth, Framebuffer::DepthStencil);
 	framebuffer->drawBuffers({Framebuffer::Color0, Framebuffer::Color1, Framebuffer::Color2});
 	framebuffer->unbind(Framebuffer::DrawFramebuffer);
 
@@ -237,9 +264,14 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		camera.update();
 		tpScene.lookAt(camera);
 
+		// ----- Geometry pass -----
+
 		geometryPassShader.bind();
 		framebuffer->bind(Framebuffer::DrawFramebuffer);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glStencilFunc(GL_ALWAYS, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xff);
 		geometryPassShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
 		geometryPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
 		geometryPassShader["u_InverseViewMatrix"].setMatrix4(tpScene.getInverseViewMatrix());
@@ -251,9 +283,24 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		gravelNormal->bind(2);
 		suzanne->draw();
 
+		// ----- Copy stencil ------
 		framebuffer->unbind(Framebuffer::DrawFramebuffer);
 		framebuffer->bind(Framebuffer::ReadFramebuffer);
+		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+		framebuffer->unbind(Framebuffer::ReadFramebuffer);
+
+		// ----- Lighting pass -----
+
+		Vector3 lightDirs[] = {{0, 1, 1}, {0, -1, -1}, {1, 0, -1}, {0, 0, -1}};
+		Vector3 lightColors[] = {{0, 1, 1}, {0.5, 0.5, 0}, {0, 0.6, 0}, {0, 0, 0.7}};
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glStencilFunc(GL_EQUAL, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		glDepthMask(GL_FALSE);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_ADD);
+		
 		lightingPassShader.bind();
 		samplerLinear.bind(1);
 		samplerLinear.bind(2);
@@ -261,21 +308,50 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		gbufferDiffuse->bind(1);
 		gbufferNormal->bind(2);
 		gbufferPosition->bind(3);
+		lightingPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
 		quadVao.bind();
-		quadVao.drawElements();
+
+		for (int i = 0; i < 4; ++i) {
+			lightingPassShader["u_LightDir"].set3f(lightDirs[i]);
+			lightingPassShader["u_LightColor"].set3f(lightColors[i]);
+			quadVao.drawElements();
+		}
+
 		quadVao.unbind();
-		framebuffer->unbind(Framebuffer::ReadFramebuffer);
-		lightingPassShader.unbind();
+		glDepthMask(GL_TRUE);
+		glBlendFunc(GL_ONE, GL_ZERO);
+
+		// ----- Cubemap pass -----
+
+		tpScene.saveModel();
+		tpScene.identity();
+		cubemapShader.bind();
+		cubemapShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
+		tpScene.restoreModel();
+
+		cubemapShader.bind();
+		samplerCubemap.bind(1);
+		cubemap->bind(1);
+
+		glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+
+		glDepthFunc(GL_LEQUAL);
+		environmentCube->draw();
+		glDepthFunc(GL_LESS);
+
+		glStencilFunc(GL_ALWAYS, 0, 0xff);
 
 		glfwSwapBuffers(window);
 	}
 
+	delete environmentCube;
 	delete suzanne;
 	delete gravelDiffuse;
 	delete gravelNormal;
 	
 	delete framebuffer;
 
+	delete cubemap;
 	delete gbufferDiffuse;
 	delete gbufferPosition;
 	delete gbufferNormal;

@@ -75,7 +75,8 @@ public:
 		Short = GL_SHORT, 
 		UnsignedInt = GL_UNSIGNED_INT,
 		Int = GL_INT,
-		Float = GL_FLOAT
+		Float = GL_FLOAT,
+		Float32UnsignedInt248Rev = GL_FLOAT_32_UNSIGNED_INT_24_8_REV
 	};
 
 	Texture(int width, int height, InternalFormat internalFormat = RGB8ui, Format format = RGB, Type type = UnsignedByte, const void *data = nullptr);
