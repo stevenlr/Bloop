@@ -17,7 +17,7 @@ def register_position(line):
 	positions.append(coordinates)
 
 def register_normal(line):
- 	coordinates = [float(p) for p in line.split(' ')]
+	coordinates = [float(p) for p in line.split(' ')]
 	normals.append(coordinates)
 
 def register_texture(line):
