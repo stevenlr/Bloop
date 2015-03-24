@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
+#include <cstdlib>
+#include <ctime>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -209,6 +211,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	Sampler samplerLinear(Sampler::MinLinear, Sampler::MagLinear, Sampler::ClampToEdge);
 
 	Mesh *suzanne = loadCobjModel("models/suzanne.cobj");
+	Mesh *sphere = loadCobjModel("models/light_sphere.cobj");
 
 	Texture *gravelDiffuse = loadPngTexture("textures/gravel-diffuse.png", true);
 	Texture *gravelNormal = loadPngTexture("textures/gravel-normal.png", true);
@@ -244,16 +247,92 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	geometryPassShader["u_NormalTexture"].set1i(2);
 	geometryPassShader.unbind();
 
-	ShaderProgram lightingPassShader("shaders/lighting_pass.vert", "shaders/lighting_pass.frag");
-	lightingPassShader.bindAttribLocation("in_Position", 0);
-	lightingPassShader.bindFragDataLocation("out_Color", 0);
-	lightingPassShader.link();
+	ShaderProgram instancedGeometryPassShader("shaders/instanced_geometry_pass.vert", "shaders/geometry_pass.frag");
+	instancedGeometryPassShader.bindAttribLocation("in_Position", 0);
+	instancedGeometryPassShader.bindAttribLocation("in_Normal", 1);
+	instancedGeometryPassShader.bindAttribLocation("in_TextureCoords", 2);
+	instancedGeometryPassShader.bindAttribLocation("in_Tangent", 3);
+	instancedGeometryPassShader.bindAttribLocation("in_InstancePosition", 4);
+	instancedGeometryPassShader.bindFragDataLocation("out_Diffuse", 0);
+	instancedGeometryPassShader.bindFragDataLocation("out_Normal", 1);
+	instancedGeometryPassShader.bindFragDataLocation("out_Position", 2);
+	instancedGeometryPassShader.link();
 
-	lightingPassShader.bind();
-	lightingPassShader["u_DiffuseTexture"].set1i(1);
-	lightingPassShader["u_NormalTexture"].set1i(2);
-	lightingPassShader["u_PositionTexture"].set1i(3);
-	lightingPassShader.unbind();
+	instancedGeometryPassShader.bind();
+	instancedGeometryPassShader["u_DiffuseTexture"].set1i(1);
+	instancedGeometryPassShader["u_NormalTexture"].set1i(2);
+	instancedGeometryPassShader.unbind();
+
+	ShaderProgram directionalLightingPassShader("shaders/directional_lighting_pass.vert", "shaders/directional_lighting_pass.frag");
+	directionalLightingPassShader.bindAttribLocation("in_Position", 0);
+	directionalLightingPassShader.bindFragDataLocation("out_Color", 0);
+	directionalLightingPassShader.link();
+
+	directionalLightingPassShader.bind();
+	directionalLightingPassShader["u_DiffuseTexture"].set1i(1);
+	directionalLightingPassShader["u_NormalTexture"].set1i(2);
+	directionalLightingPassShader["u_PositionTexture"].set1i(3);
+	directionalLightingPassShader.unbind();
+
+	ShaderProgram pointLightingPassShader("shaders/point_lighting_pass.vert", "shaders/point_lighting_pass.frag");
+	pointLightingPassShader.bindAttribLocation("in_Position", 0);
+	pointLightingPassShader.bindFragDataLocation("out_Color", 0);
+	pointLightingPassShader.link();
+
+	pointLightingPassShader.bind();
+	pointLightingPassShader["u_DiffuseTexture"].set1i(1);
+	pointLightingPassShader["u_NormalTexture"].set1i(2);
+	pointLightingPassShader["u_PositionTexture"].set1i(3);
+	pointLightingPassShader.unbind();
+
+	ShaderProgram pointLightingBoundingSphereShader("shaders/point_light_bounding_sphere.vert", "shaders/point_light_bounding_sphere.frag");
+	pointLightingBoundingSphereShader.bindAttribLocation("in_Position", 0);
+	pointLightingBoundingSphereShader.bindFragDataLocation("out_Color", 0);
+	pointLightingBoundingSphereShader.link();
+
+	Buffer instPosBuffer(Buffer::Array, Buffer::StaticDraw);
+	const int nbInstances = 1000;
+
+	{
+		Vector3 pos[nbInstances];
+
+		for (int i = 0; i < nbInstances; ++i) {
+			float x = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 40;
+			float y = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 40;
+			float z = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 40;
+
+			pos[i] = {x, y, z};
+		}
+
+		instPosBuffer.data(nbInstances * sizeof(Vector3), reinterpret_cast<const void*>(pos));
+	}
+
+	sphere->addAttrib(4, VertexAttrib(&instPosBuffer, 3, VertexAttrib::Float, false, 0, 0, 1));
+
+	const int nbPointLights = 20;
+	Vector4 pointLightPositions[nbPointLights];
+	Vector3 pointLightColor[nbPointLights];
+	float pointLightIntensity[nbPointLights];
+	float pointLightScale[nbPointLights];
+
+	for (int i = 0; i < nbPointLights; ++i) {
+		float x = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
+		float y = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
+		float z = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
+
+		float r = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5;
+		float g = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5;
+		float b = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5;
+
+		float intensity = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5 * 10;
+		float vmax = max(max(r, g), b);
+		float scale = sqrt(intensity * vmax * 256) + 1;
+
+		pointLightPositions[i] = {x, y, z, 1};
+		pointLightColor[i] = {r, g, b};
+		pointLightIntensity[i] = intensity;
+		pointLightScale[i] = scale;
+	}
 
 	while (running) {
 		input.poll();
@@ -263,6 +342,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 
 		camera.update();
 		tpScene.lookAt(camera);
+		tpScene.identity();
 
 		// ----- Geometry pass -----
 
@@ -283,37 +363,79 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		gravelNormal->bind(2);
 		suzanne->draw();
 
-		// ----- Copy stencil ------
+		tpScene.translation(5, 0, 0);
+		instancedGeometryPassShader.bind();
+		instancedGeometryPassShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
+		instancedGeometryPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
+		instancedGeometryPassShader["u_InverseViewMatrix"].setMatrix4(tpScene.getInverseViewMatrix());
+		instancedGeometryPassShader["u_ModelViewMatrix"].setMatrix4(tpScene.getViewModelMatrix());
+		instancedGeometryPassShader["u_NormalMatrix"].setMatrix3(tpScene.getNormalMatrix());
+		sphere->drawInstanced(nbInstances);
+
 		framebuffer->unbind(Framebuffer::DrawFramebuffer);
-		framebuffer->bind(Framebuffer::ReadFramebuffer);
-		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-		framebuffer->unbind(Framebuffer::ReadFramebuffer);
 
-		// ----- Lighting pass -----
+		// ----- Point lights pass -----
 
-		Vector3 lightDirs[] = {{0, 1, 1}, {0, -1, -1}, {1, 0, -1}, {0, 0, -1}};
-		Vector3 lightColors[] = {{0, 1, 1}, {0.5, 0.5, 0}, {0, 0.6, 0}, {0, 0, 0.7}};
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glStencilFunc(GL_EQUAL, 1, 0xff);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		glDepthMask(GL_FALSE);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBlendEquation(GL_ADD);
-		
-		lightingPassShader.bind();
 		samplerLinear.bind(1);
 		samplerLinear.bind(2);
 		samplerLinear.bind(3);
 		gbufferDiffuse->bind(1);
 		gbufferNormal->bind(2);
 		gbufferPosition->bind(3);
-		lightingPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_STENCIL_BUFFER_BIT);
+		glDepthMask(GL_FALSE);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_ADD);
+
+		/*framebuffer->bind(Framebuffer::ReadFramebuffer);
+		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		framebuffer->unbind(Framebuffer::ReadFramebuffer);*/
+
+		for (int i = 0; i < nbPointLights; ++i) {
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			glStencilFunc(GL_ALWAYS, 1, 0xff);
+			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR, GL_KEEP);
+			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+			pointLightingBoundingSphereShader.bind();
+			pointLightingBoundingSphereShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
+			pointLightingBoundingSphereShader["u_Position"].set4f(pointLightPositions[i]);
+			pointLightingBoundingSphereShader["u_Scale"].set1f(pointLightScale[i]);
+			sphere->draw();
+
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glStencilFunc(GL_EQUAL, 0, 0xff);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+			pointLightingPassShader.bind();
+			pointLightingPassShader["u_LightPosition"].set4f(tpScene.getViewMatrix() * pointLightPositions[i]);
+			pointLightingPassShader["u_LightColor"].set3f(pointLightColor[i]);
+			pointLightingPassShader["u_LightIntensity"].set1f(pointLightScale[i]);
+			quadVao.bind();
+			quadVao.drawElements();
+		}
+
+		// ----- Copy stencil ------
+
+		framebuffer->bind(Framebuffer::ReadFramebuffer);
+		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+		framebuffer->unbind(Framebuffer::ReadFramebuffer);
+
+		// ----- Directional lights pass -----
+
+		Vector3 directionalLightDirs[] = {{0, 1, 1}, {0, -1, -1}};
+		Vector3 directionalLightColors[] = {{0, 1, 1}, {0.5, 0.5, 0}};
+		
+		glStencilFunc(GL_EQUAL, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		
+		directionalLightingPassShader.bind();
+		directionalLightingPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
 		quadVao.bind();
 
-		for (int i = 0; i < 4; ++i) {
-			lightingPassShader["u_LightDir"].set3f(lightDirs[i]);
-			lightingPassShader["u_LightColor"].set3f(lightColors[i]);
+		for (int i = 0; i < 0; ++i) {
+			directionalLightingPassShader["u_LightDir"].set3f(directionalLightDirs[i]);
+			directionalLightingPassShader["u_LightColor"].set3f(directionalLightColors[i]);
 			quadVao.drawElements();
 		}
 
@@ -346,6 +468,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 
 	delete environmentCube;
 	delete suzanne;
+	delete sphere;
 	delete gravelDiffuse;
 	delete gravelNormal;
 	
@@ -363,6 +486,7 @@ void run(int argc, char *argv[])
 	Logger::init(&cerr);
 
 	GLFWwindow *window;
+	srand(time(nullptr));
 
 	if (!glfwInit())
 		throw runtime_error("Couldn't initialize GLFW.");
