@@ -309,16 +309,16 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 
 	sphere->addAttrib(4, VertexAttrib(&instPosBuffer, 3, VertexAttrib::Float, false, 0, 0, 1));
 
-	const int nbPointLights = 20;
+	const int nbPointLights = 30;
 	Vector4 pointLightPositions[nbPointLights];
 	Vector3 pointLightColor[nbPointLights];
 	float pointLightIntensity[nbPointLights];
 	float pointLightScale[nbPointLights];
 
 	for (int i = 0; i < nbPointLights; ++i) {
-		float x = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
-		float y = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
-		float z = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 10;
+		float x = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 20;
+		float y = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 20;
+		float z = (static_cast<float>(rand()) / RAND_MAX - 0.5) * 20;
 
 		float r = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5;
 		float g = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5;
@@ -326,7 +326,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 
 		float intensity = (static_cast<float>(rand()) / RAND_MAX + 0.5) / 1.5 * 10;
 		float vmax = max(max(r, g), b);
-		float scale = sqrt(intensity * vmax * 256) + 1;
+		float scale = pow(intensity * vmax * 256, 0.25) + 1;
 
 		pointLightPositions[i] = {x, y, z, 1};
 		pointLightColor[i] = {r, g, b};
@@ -363,7 +363,6 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		gravelNormal->bind(2);
 		suzanne->draw();
 
-		tpScene.translation(5, 0, 0);
 		instancedGeometryPassShader.bind();
 		instancedGeometryPassShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
 		instancedGeometryPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
@@ -383,21 +382,22 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		gbufferNormal->bind(2);
 		gbufferPosition->bind(3);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClear(GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
 		glBlendFunc(GL_ONE, GL_ONE);
 		glBlendEquation(GL_ADD);
 
-		/*framebuffer->bind(Framebuffer::ReadFramebuffer);
+		framebuffer->bind(Framebuffer::ReadFramebuffer);
 		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-		framebuffer->unbind(Framebuffer::ReadFramebuffer);*/
+		framebuffer->unbind(Framebuffer::ReadFramebuffer);
 
 		for (int i = 0; i < nbPointLights; ++i) {
+			glClear(GL_STENCIL_BUFFER_BIT);
 			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			glStencilFunc(GL_ALWAYS, 1, 0xff);
-			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR, GL_KEEP);
-			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR, GL_KEEP);
+			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR, GL_KEEP);
 			pointLightingBoundingSphereShader.bind();
 			pointLightingBoundingSphereShader["u_PvmMatrix"].setMatrix4(tpScene.getPVMMatrix());
 			pointLightingBoundingSphereShader["u_Position"].set4f(pointLightPositions[i]);
@@ -405,7 +405,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 			sphere->draw();
 
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-			glStencilFunc(GL_EQUAL, 0, 0xff);
+			glStencilFunc(GL_NOTEQUAL, 0, 0xff);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 			pointLightingPassShader.bind();
 			pointLightingPassShader["u_LightPosition"].set4f(tpScene.getViewMatrix() * pointLightPositions[i]);
@@ -424,16 +424,16 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		// ----- Directional lights pass -----
 
 		Vector3 directionalLightDirs[] = {{0, 1, 1}, {0, -1, -1}};
-		Vector3 directionalLightColors[] = {{0, 1, 1}, {0.5, 0.5, 0}};
+		Vector3 directionalLightColors[] = {{0, 0.1f, 0.1f}, {0.1f, 0.1f, 0}};
 		
-		glStencilFunc(GL_EQUAL, 1, 0xff);
+		glStencilFunc(GL_ALWAYS, 1, 0xff);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		
 		directionalLightingPassShader.bind();
 		directionalLightingPassShader["u_ViewMatrix"].setMatrix4(tpScene.getViewMatrix());
 		quadVao.bind();
 
-		for (int i = 0; i < 0; ++i) {
+		for (int i = 0; i < 2; ++i) {
 			directionalLightingPassShader["u_LightDir"].set3f(directionalLightDirs[i]);
 			directionalLightingPassShader["u_LightColor"].set3f(directionalLightColors[i]);
 			quadVao.drawElements();
@@ -462,6 +462,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		glDepthFunc(GL_LESS);
 
 		glStencilFunc(GL_ALWAYS, 0, 0xff);
+		glEnable(GL_CULL_FACE);
 
 		glfwSwapBuffers(window);
 	}
