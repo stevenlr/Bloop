@@ -29,11 +29,14 @@
 #include "maths/MatrixFactory.h"
 #include "maths/TransformPipeline.h"
 
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
+
 using namespace std;
 
 void environmentMapping(GLFWwindow *window, InputHandler &input)
 {
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glClearColor(0, 0, 0, 1);
 
 	ShaderProgram defaultShader("shaders/default.vert", "shaders/default.frag");
@@ -52,7 +55,7 @@ void environmentMapping(GLFWwindow *window, InputHandler &input)
 	TransformPipeline tp;
 	Camera camera({-3, 0.5, 0.5});
 
-	tp.perspectiveProjection(70, 1280, 720, 0.1f, 10000);
+	tp.perspectiveProjection(70, WINDOW_WIDTH, WINDOW_HEIGHT, 0.1f, 10000);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -146,13 +149,13 @@ void environmentMapping(GLFWwindow *window, InputHandler &input)
 
 void deferredShading(GLFWwindow *window, InputHandler &input)
 {
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glClearColor(0, 0, 0, 1);
 
 	TransformPipeline tpScene;
 	Camera camera({-3, 0.5, 0.5});
 
-	tpScene.perspectiveProjection(70, 1280, 720, 0.1f, 10000);
+	tpScene.perspectiveProjection(70, WINDOW_WIDTH, WINDOW_HEIGHT, 0.1f, 10000);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -218,10 +221,10 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 	
 	tpScene.rotationZ(1.7);
 
-	Texture *gbufferDiffuse = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
-	Texture *gbufferNormal = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
-	Texture *gbufferPosition = new Texture(1280, 720, Texture::RGB32f, Texture::RGB, Texture::Float);
-	Renderbuffer *gbufferDepth = new Renderbuffer(1280, 720, Renderbuffer::Depth24Stencil8);
+	Texture *gbufferDiffuse = new Texture(WINDOW_WIDTH, WINDOW_HEIGHT, Texture::RGB32f, Texture::RGB, Texture::Float);
+	Texture *gbufferNormal = new Texture(WINDOW_WIDTH, WINDOW_HEIGHT, Texture::RGB32f, Texture::RGB, Texture::Float);
+	Texture *gbufferPosition = new Texture(WINDOW_WIDTH, WINDOW_HEIGHT, Texture::RGB32f, Texture::RGB, Texture::Float);
+	Renderbuffer *gbufferDepth = new Renderbuffer(WINDOW_WIDTH, WINDOW_HEIGHT, Renderbuffer::Depth24Stencil8);
 
 	Framebuffer *framebuffer = new Framebuffer();
 	framebuffer->bind(Framebuffer::DrawFramebuffer);
@@ -389,7 +392,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		glBlendEquation(GL_ADD);
 
 		framebuffer->bind(Framebuffer::ReadFramebuffer);
-		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, 1280, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 		framebuffer->unbind(Framebuffer::ReadFramebuffer);
 
 		for (int i = 0; i < nbPointLights; ++i) {
@@ -418,7 +421,7 @@ void deferredShading(GLFWwindow *window, InputHandler &input)
 		// ----- Copy stencil ------
 
 		framebuffer->bind(Framebuffer::ReadFramebuffer);
-		glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, 1280, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 		framebuffer->unbind(Framebuffer::ReadFramebuffer);
 
 		// ----- Directional lights pass -----
@@ -497,7 +500,7 @@ void run(int argc, char *argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(1280, 720, "test", nullptr, nullptr);
+	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "test", nullptr, nullptr);
 
 	if (!window) {
 		glfwTerminate();
