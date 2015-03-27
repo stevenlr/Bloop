@@ -45,6 +45,7 @@ void ShaderProgram::link()
 
 		GLchar *log = new GLchar[length];
 
+		glGetProgramInfoLog(_id, length, nullptr, log);
 		LOGERROR << "Error when linking program (" << _vFile << ", " << _fFile << ") : "
 			<< endl << log << endl;
 		delete[] log;
