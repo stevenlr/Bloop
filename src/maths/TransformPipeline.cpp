@@ -51,7 +51,7 @@ void TransformPipeline::identity()
 
 void TransformPipeline::translation(const Vector3 &offset)
 {
-	translation(offset[0], offset[1], offset[3]);
+	translation(offset[0], offset[1], offset[2]);
 }
 
 void TransformPipeline::translation(float x, float y, float z)
