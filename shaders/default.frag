@@ -16,7 +16,7 @@ out vec4 out_Color;
 
 vec3 computeNormal()
 {
-	vec3 normal = texture2D(u_NormalTexture, v_TextureCoords).rgb * 2 - 1;
+	vec3 normal = texture(u_NormalTexture, v_TextureCoords).rgb * 2 - 1;
 	vec3 bitangent = cross(v_Tangent, v_Normal);
 
 	return mat3(v_Tangent.x, v_Tangent.y, v_Tangent.z,
@@ -28,8 +28,8 @@ void main()
 {
 	vec3 normal = computeNormal();
 
-	vec3 diffuseColor = texture2D(u_DiffuseTexture, v_TextureCoords).rgb;
-	float specularIntensity = texture2D(u_SpecularTexture, v_TextureCoords).r;
+	vec3 diffuseColor = texture(u_DiffuseTexture, v_TextureCoords).rgb;
+	float specularIntensity = texture(u_SpecularTexture, v_TextureCoords).r;
 
 	const vec3 specularColor = vec3(1, 1, 1);
 

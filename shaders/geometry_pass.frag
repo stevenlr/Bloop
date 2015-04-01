@@ -14,7 +14,7 @@ out vec3 out_Position;
 
 vec3 computeNormal()
 {
-	vec3 normal = texture2D(u_NormalTexture, v_TextureCoords).rgb * 2 - 1;
+	vec3 normal = texture(u_NormalTexture, v_TextureCoords).rgb * 2 - 1;
 	vec3 bitangent = cross(v_Tangent, v_Normal);
 
 	return mat3(v_Tangent.x, v_Tangent.y, v_Tangent.z,
@@ -24,7 +24,7 @@ vec3 computeNormal()
 
 void main()
 {
-	out_Color = texture2D(u_DiffuseTexture, v_TextureCoords).rgb;
+	out_Color = texture(u_DiffuseTexture, v_TextureCoords).rgb;
 	out_Normal = computeNormal();
 	out_Position = v_Position;
 }

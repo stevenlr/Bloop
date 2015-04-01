@@ -18,6 +18,7 @@ public:
 	ShaderProgram &operator=(const ShaderProgram &program) = delete;
 
 	void link();
+	void validate();
 
 	void bindAttribLocation(const std::string &name, GLuint location);
 	void bindFragDataLocation(const std::string &name, GLuint location);

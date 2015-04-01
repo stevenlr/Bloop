@@ -12,9 +12,9 @@ out vec4 out_Color;
 
 void main()
 {
-	vec3 diffuseColor = texture2D(u_DiffuseTexture, v_Position).rgb;
-	vec3 normal = texture2D(u_NormalTexture, v_Position).xyz;
-	vec3 position = texture2D(u_PositionTexture, v_Position).xyz;
+	vec3 diffuseColor = texture(u_DiffuseTexture, v_Position).rgb;
+	vec3 normal = texture(u_NormalTexture, v_Position).xyz;
+	vec3 position = texture(u_PositionTexture, v_Position).xyz;
 
 	out_Color = vec4(diffuseColor * max(0, dot(normal, v_LightDir)) * u_LightColor, 1);
 }

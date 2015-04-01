@@ -73,7 +73,14 @@ void ShaderProgram::bind() const
 	if (!_linked)
 		throw runtime_error("Binding an unlinked program.");
 
-#ifndef NDEBUG
+	if (_boundProgram != _id) {
+		glUseProgram(_id);
+		_boundProgram = _id;
+	}
+}
+
+void ShaderProgram::validate()
+{
 	GLint success;
 
 	glValidateProgram(_id);
@@ -92,12 +99,6 @@ void ShaderProgram::bind() const
 		delete[] log;
 
 		throw runtime_error("Error when validating program. See logs.");
-	}
-#endif
-
-	if (_boundProgram != _id) {
-		glUseProgram(_id);
-		_boundProgram = _id;
 	}
 }
 
